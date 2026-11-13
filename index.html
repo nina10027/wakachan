@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>わかちゃんのおへや🐼</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='12' cy='12.5' r='7' fill='%232F3438'/%3E%3Ccircle cx='36' cy='12.5' r='7' fill='%232F3438'/%3E%3Cellipse cx='24' cy='27' rx='17.5' ry='15.5' fill='%23fff' stroke='%232F3438' stroke-width='1.6'/%3E%3Cellipse cx='17' cy='25' rx='5.2' ry='6.2' fill='%232F3438'/%3E%3Cellipse cx='31' cy='25' rx='5.2' ry='6.2' fill='%232F3438'/%3E%3Cellipse cx='24' cy='32' rx='3' ry='2.2' fill='%232F3438'/%3E%3C/svg%3E">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>html,body{margin:0;padding:0;background:#FFFBF3;-webkit-text-size-adjust:100%}</style>
+</head>
+<body>
+<style>
+  :root{
+    --paper:#FAFBF3; --surface:#FFFFFF; --ink:#2C332C; --sumi:#495049;
+    --bamboo:#4E8B5F; --bamboo-d:#356547; --bamboo-l:#E7F1E4;
+    --sasa:#8FBF7E; --sasa-p:#C9DEC2;
+    --blush:#E8A2AC; --blush-d:#C86E7C; --blush-l:#FDF1F2;
+    --muted:#87908A; --line:#E4E7D8; --rule:#DBE4D8;
+    --mincho:"Yu Mincho","YuMincho","Hiragino Mincho ProN","MS PMincho",serif;
+    --gothic:"Yu Gothic","YuGothic","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif;
+    --mono:"SFMono-Regular",Consolas,"Roboto Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  .ka{font-family:var(--gothic);color:var(--ink);line-height:1.6;
+      background-color:var(--paper);
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><g fill='none' stroke='%23C9DEC2' stroke-width='1.3' opacity='.75'><path d='M14 62 C34 30 74 20 100 26 C82 62 44 78 14 62Z'/><path d='M14 62 C44 56 78 44 100 26'/></g><g fill='none' stroke='%23DCE9D6' stroke-width='1.3' opacity='.85'><path d='M186 148 C166 116 126 106 100 112 C118 148 156 164 186 148Z'/><path d='M186 148 C156 142 122 130 100 112'/></g><g fill='none' stroke='%23DCE9D6' stroke-width='1.3' opacity='.6'><path d='M96 178 C104 156 128 142 148 142 C142 168 118 182 96 178Z'/><path d='M96 178 C118 172 138 158 148 142'/></g></svg>");
+      background-size:220px 220px;background-attachment:local}
+  .ka button{font-family:inherit;cursor:pointer}
+  .ka input,.ka select,.ka textarea{font-family:inherit;color:var(--ink)}
+
+  /* ---------- ヘッダ（竹の節） ---------- */
+  .hd{position:relative;display:flex;align-items:center;justify-content:space-between;gap:14px;
+      padding:16px 22px 16px;flex-wrap:wrap;
+      background:linear-gradient(180deg,#FFFFFF 0%, #F3F7EC 100%);
+      border-bottom:3px solid var(--bamboo);border-radius:0 0 24px 24px;
+      box-shadow:0 3px 0 -1px var(--sasa-p)}
+  .hd::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:3px;
+      background:repeating-linear-gradient(90deg,var(--bamboo-d) 0 14px,transparent 14px 30px);opacity:.5}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand h1{font-family:var(--mincho);font-size:24px;font-weight:600;margin:0;letter-spacing:.06em}
+  .brand small{display:block;font-family:var(--gothic);font-size:11px;color:var(--muted);letter-spacing:.14em;margin-top:2px}
+  .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{border:1px solid var(--line);background:var(--surface);color:var(--sumi);
+       padding:7px 14px;border-radius:999px;font-size:13px;transition:.15s}
+  .btn:hover{border-color:var(--bamboo);color:var(--bamboo-d);background:var(--bamboo-l)}
+  .btn:focus-visible{outline:2px solid var(--bamboo);outline-offset:2px}
+  .btn.pri{background:var(--bamboo);border-color:var(--bamboo);color:#fff}
+  .btn.pri:hover{background:var(--bamboo-d);color:#fff}
+  .btn.dgr{color:var(--blush-d);border-color:#F0D3D8}
+  .btn.dgr:hover{background:var(--blush);color:#fff;border-color:var(--blush)}
+  .btn.sm{padding:4px 11px;font-size:12px}
+  .btn[disabled]{opacity:.5;cursor:default}
+
+  .tabs{display:flex;padding:12px 22px 0;gap:8px}
+  .tab{border:1px solid var(--line);background:#FFFFFFAA;padding:8px 18px;border-radius:14px 14px 0 0;
+       font-size:13.5px;color:var(--muted);letter-spacing:.06em;border-bottom:none}
+  .tab.on{color:var(--bamboo-d);background:var(--surface);font-weight:600;box-shadow:0 -3px 0 var(--sasa) inset}
+  .tab svg{vertical-align:-3px;margin-right:5px}
+  .wrap{padding:0 22px 70px}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:0 16px 16px 16px;padding:16px;
+         box-shadow:0 2px 12px rgba(78,139,95,.06)}
+
+  /* ---------- ステータス ---------- */
+  .status{border:1px solid var(--line);background:#FFFFFF;border-radius:14px;margin:14px 0;overflow:hidden}
+  .status .top{display:flex;align-items:center;gap:10px;padding:9px 13px;flex-wrap:wrap;font-size:12px}
+  .status .dot{width:9px;height:9px;border-radius:50%;background:var(--bamboo);flex:none}
+  .status.warn{background:#FFFBEF;border-color:#EEE0BB}
+  .status.warn .dot{background:#D9A93F}
+  .status.bad{background:var(--blush-l);border-color:#F0D3D8}
+  .status.bad .dot{background:var(--blush-d)}
+  .status .grow{flex:1;min-width:180px}
+  .status .num{font-family:var(--mono);color:var(--ink);font-weight:600}
+  .detail{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:pre-wrap;
+          border-top:1px dashed var(--line);padding:9px 13px;line-height:1.7}
+
+  /* ---------- 絞り込み ---------- */
+  .filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .fin{padding:7px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;background:var(--surface)}
+  .fin:focus{outline:none;border-color:var(--bamboo)}
+  .fin.search{min-width:210px;flex:1;border-radius:999px}
+  .count{font-size:12.5px;color:var(--muted)}
+  .count b{font-family:var(--mono);font-size:15px;color:var(--bamboo-d)}
+
+  /* ---------- カード ---------- */
+  .cards{display:grid;gap:11px}
+  .card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sasa-p);border-radius:16px;
+        padding:13px 16px 13px 13px;cursor:pointer;transition:.15s;text-align:left;width:100%;
+        display:flex;gap:12px;align-items:flex-start;font:inherit}
+  .card:hover{border-color:var(--bamboo);border-left-color:var(--sasa);box-shadow:0 4px 16px rgba(78,139,95,.14);transform:translateY(-1px)}
+  .card:focus-visible{outline:2px solid var(--bamboo);outline-offset:2px}
+  .card .av{flex:none;width:46px;height:46px;border-radius:62% 8% 62% 8%;
+            background:linear-gradient(140deg,#EDF5E9,#D8E9D2);transform:rotate(-8deg);
+            display:flex;align-items:center;justify-content:center}
+  .card .av svg{transform:rotate(8deg)}
+  .card:hover .av{background:linear-gradient(140deg,#E3F0DD,#CBE2C4)}
+  .card .bd{flex:1;min-width:0}
+  .c1{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:5px}
+  .yr{font-family:var(--mono);font-size:11.5px;color:#fff;background:var(--ink);padding:2px 9px;border-radius:999px}
+  .kind{font-size:11.5px;color:var(--bamboo-d);background:var(--bamboo-l);border:1px solid #D6E6DA;padding:2px 9px;border-radius:999px}
+  .sub2{font-family:var(--mincho);font-size:16px;font-weight:600;letter-spacing:.04em}
+  .cmt{font-size:11.5px;color:var(--blush-d);border:1px solid #F0D3D8;background:var(--blush-l);padding:1px 9px;border-radius:999px}
+  .tagf{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:1px 8px;border-radius:999px}
+  .c2{font-size:11.5px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
+  .c2 b{font-family:var(--mono);color:var(--sumi);font-weight:600}
+  .prev{margin-top:8px;font-family:var(--mincho);font-size:12.5px;color:#5A6165;line-height:20px;max-height:40px;overflow:hidden}
+
+  .empty{border:2px dashed var(--line);background:var(--surface);border-radius:18px;padding:34px 22px;text-align:center}
+  .empty p{margin:10px 0 14px;color:var(--muted);font-size:13.5px}
+
+  /* ---------- ドロワー ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(47,52,56,.32);z-index:40}
+  .drw{position:fixed;top:0;right:0;bottom:0;width:min(1500px,98vw);background:var(--paper);z-index:41;
+       overflow-y:auto;box-shadow:-2px 0 26px rgba(47,52,56,.18)}
+  .dh{position:sticky;top:0;background:#FFFDF8;border-bottom:1px solid var(--line);padding:12px 20px;
+      display:flex;justify-content:space-between;align-items:center;gap:12px;z-index:3}
+  .dh h2{font-family:var(--mincho);font-size:18px;margin:0;font-weight:600;display:flex;align-items:center;gap:8px}
+  .db{padding:18px 20px 80px}
+  .meta{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:14px;
+        border-bottom:1px dashed var(--line);padding-bottom:12px}
+  .meta b{font-family:var(--mono);color:var(--sumi);font-weight:600}
+
+  /* ---------- 答案用紙 ---------- */
+  .sheetwrap{overflow-x:auto}
+  .sheet{list-style:none;margin:0;padding:0;width:max-content;min-width:100%}
+  .sheet li{display:flex;align-items:stretch;border-bottom:1px solid var(--rule);min-height:32px;cursor:pointer}
+  .sheet li:hover{background:#F7FAF7}
+  .sheet .ln{flex:none;width:34px;text-align:right;padding-right:12px;font-family:var(--mono);
+             font-size:10.5px;color:#A9B2AA;line-height:32px;user-select:none}
+  .sheet .tx{font-family:var(--mincho);font-size:15px;line-height:32px;white-space:pre;
+             letter-spacing:0;width:30em;flex:none}
+  .sheet .tx .hit{background:#FBEFB4}
+  .sheet .tx .cm{background:#FDF0F2;border-bottom:1.5px solid var(--blush);cursor:pointer}
+  .sheet .tx .cm.on{background:#FBDCE1}
+  .sheet .tx .sel{background:var(--bamboo-l);border-bottom:1.5px solid var(--bamboo)}
+  .pgmark{display:flex;align-items:center;gap:10px;margin:3px 0 3px 46px;font-size:10.5px;color:var(--bamboo-d);letter-spacing:.1em}
+  .pgmark::before{content:"";display:inline-block;width:11px;height:8px;background:var(--sasa);border-radius:70% 8% 70% 8%;transform:rotate(-14deg);flex:none}
+  .pgmark::after{content:"";flex:1;border-top:1px dashed var(--sasa-p)}
+
+  /* ---------- メモ ---------- */
+  .chd{font-family:var(--mincho);font-size:16px;font-weight:600;border-bottom:1px solid var(--bamboo);padding-bottom:6px;margin:0 0 12px}
+  .chd::before{content:"";display:inline-block;width:13px;height:9px;margin-right:7px;background:var(--sasa);border-radius:70% 8% 70% 8%;transform:rotate(-14deg)}
+  .cItem{border:1px solid var(--line);background:var(--surface);border-left:3px solid var(--blush);
+         border-radius:0 12px 12px 0;padding:11px 13px;margin-bottom:9px}
+  .cTop{display:flex;justify-content:flex-end;align-items:baseline;gap:10px;margin-bottom:5px}
+  .cWhen{font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .cBody{font-size:13.5px;white-space:pre-wrap;word-break:break-word;line-height:1.85}
+
+  /* ---------- フォーム ---------- */
+  .fld{margin-bottom:12px}
+  .fld label{display:block;font-size:11px;letter-spacing:.1em;color:var(--muted);margin-bottom:5px;font-weight:600}
+  .req{color:var(--blush-d);font-size:10px;border:1px solid #F0D3D8;background:var(--blush-l);
+       padding:1px 6px;margin-left:6px;border-radius:999px;letter-spacing:.05em}
+  .opt{color:var(--bamboo-d);font-size:10px;border:1px solid #D6E6DA;background:var(--bamboo-l);
+       padding:1px 6px;margin-left:6px;border-radius:999px;letter-spacing:.05em}
+  .fin2{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-size:13.5px;background:var(--surface)}
+  .fin2:focus{outline:none;border-color:var(--bamboo)}
+  .fin2.bad{border-color:var(--blush-d);background:var(--blush-l)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .drop{border:2px dashed var(--line);background:var(--surface);border-radius:16px;padding:20px 18px;text-align:center}
+  .drop.on{border-color:var(--bamboo);background:var(--bamboo-l)}
+  .drop p{margin:8px 0 10px;font-size:13px;color:var(--muted)}
+  .ta{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;font-size:13px;background:var(--surface);
+      resize:vertical;line-height:1.8;font-family:var(--mincho);min-height:140px}
+  .ta.short{min-height:78px;font-family:var(--gothic)}
+  .ta:focus{outline:none;border-color:var(--bamboo)}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.7}
+  .hint b{font-family:var(--mono);color:var(--sumi)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .err{background:var(--blush-l);border:1px solid #F0D3D8;border-left:3px solid var(--blush-d);border-radius:0 12px 12px 0;
+       padding:11px 13px;font-size:12.5px;color:#8A4049;margin:12px 0;line-height:1.8}
+  .ok{background:var(--bamboo-l);border:1px solid #D6E6DA;border-radius:12px;
+      padding:11px 13px;font-size:12.5px;color:#33604A;margin:12px 0;line-height:1.8}
+  .loadbar{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:70;
+           display:flex;align-items:center;gap:9px;background:#FFFFFF;border:1px solid var(--sasa);
+           border-radius:999px;padding:8px 18px;font-size:12.5px;color:var(--bamboo-d);
+           box-shadow:0 4px 18px rgba(78,139,95,.22)}
+  .loadbar .lf{width:15px;height:10px;background:var(--sasa);border-radius:70% 8% 70% 8%;
+               animation:sway .8s ease-in-out infinite alternate;flex:none}
+  .loadbar .lf.b{animation-delay:.18s;opacity:.6}
+  @keyframes sway{from{transform:rotate(-28deg)}to{transform:rotate(22deg)}}
+  .selpop{position:absolute;z-index:8;width:min(320px,86vw);background:#FFFFFF;
+          border:1px solid var(--sasa);border-radius:14px;padding:11px 12px;
+          box-shadow:0 8px 26px rgba(44,51,44,.20)}
+  .selpop .ph{font-size:11px;color:var(--bamboo-d);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .selpop .pq{font-family:var(--mincho);font-size:11.5px;color:var(--muted);
+              border-left:2px solid var(--sasa-p);padding-left:7px;margin-bottom:7px;
+              overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .selpop textarea{min-height:70px}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;
+         padding:10px 20px;font-size:13px;z-index:60;border-radius:999px;display:flex;align-items:center;gap:8px}
+
+  /* ---------- 問題の添付 ---------- */
+  .att{border:1px solid var(--line);background:var(--surface);border-radius:14px;margin-bottom:16px;overflow:hidden}
+  .attHd{display:flex;align-items:center;gap:9px;padding:10px 14px;background:#FBF7EF;cursor:pointer;font-size:13px}
+  .attHd .nm{flex:1;font-family:var(--mono);font-size:11.5px;color:var(--muted);
+             overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .attBody{padding:12px 14px;border-top:1px dashed var(--line);background:#FDFDFB}
+  .attBody canvas,.attBody img{max-width:100%;display:block;margin:0 auto 10px;border:1px solid var(--line);border-radius:6px}
+  .attBody pre{font-family:var(--mincho);font-size:13px;white-space:pre-wrap;line-height:1.9;margin:0}
+
+  /* ---------- カレンダー ---------- */
+  .calhd{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .calhd h3{font-family:var(--mincho);font-size:19px;margin:0;font-weight:600;letter-spacing:.06em;min-width:150px}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);border-left:1px solid var(--line);border-top:1px solid var(--line);
+       background:var(--surface);border-radius:14px;overflow:hidden}
+  .cal .dow{padding:7px 4px;text-align:center;font-size:11.5px;color:var(--muted);
+            border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#F6F3EC}
+  .cal .dow.sun{color:var(--blush-d)}
+  .cal .dow.sat{color:#5E7E9A}
+  .cal .day{min-height:98px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+            padding:5px 6px;cursor:pointer;transition:.12s}
+  .cal .day:hover{background:#F7FAF7}
+  .cal .day.out{background:#FBFAF6;color:#C6CBC7;cursor:default}
+  .cal .day.today{box-shadow:inset 0 0 0 2px var(--bamboo)}
+  .cal .dnum{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .cal .day.sun .dnum{color:var(--blush-d)}
+  .cal .day.sat .dnum{color:#5E7E9A}
+  .ev{margin-top:3px;font-size:10.5px;background:#EEF3F6;border-left:2px solid #7C9FBA;padding:2px 5px;
+      border-radius:0 6px 6px 0;line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ev b{font-family:var(--mono);font-weight:600}
+  .ev.auto{background:var(--bamboo-l);border-left-color:var(--bamboo)}
+
+  /* ---------- 本文＋メモの2段組 ---------- */
+  .vpane{position:relative;display:flex;align-items:flex-start}
+  .pages{flex:none;display:grid;grid-template-columns:repeat(2,max-content);gap:14px}
+  .pagecol{flex:none;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sasa-p);
+           border-radius:14px;padding:14px 12px}
+  .sheetcol{flex:none;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sasa-p);border-radius:14px;
+            padding:14px 14px;position:relative}
+  .pghd{font-size:10.5px;color:var(--bamboo-d);letter-spacing:.1em;margin:0 0 6px 42px}
+  .gapcol{flex:none;width:46px}
+  .memocol{position:relative;flex:0 0 300px;min-width:300px}
+  .pb{border:none;background:none;padding:2px;cursor:pointer;font-size:26px;line-height:1;transition:.12s}
+  .pb:hover{transform:scale(1.12)}
+  .pb.off{opacity:.25;filter:grayscale(1)}
+  .rate{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+  .rlbl{font-size:12.5px;color:var(--muted);margin-left:8px}
+  .memoCard{position:absolute;left:0;right:0;background:#FFFFFF;border:1px solid var(--line);
+            border-left:3px solid var(--blush);border-radius:0 12px 12px 0;padding:10px 12px;transition:.12s}
+  .memoCard.on{border-color:var(--blush);box-shadow:0 2px 10px rgba(232,162,172,.3)}
+  .memoAnchor{font-size:10.5px;font-family:var(--mono);color:var(--blush-d);margin-bottom:3px}
+  .memoQuote{font-family:var(--mincho);font-size:11.5px;color:var(--muted);border-left:2px solid var(--rule);
+             padding-left:7px;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .conn{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:1}
+  .sheet li.anch{background:#FFF6D9}
+  .selbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);
+          background:#FFFBEF;border:1px solid #EEE0BB;border-radius:12px;padding:8px 12px;margin-bottom:10px}
+  @media(max-width:1100px){
+    .vpane{flex-direction:column}
+    .pages{grid-template-columns:1fr;gap:12px}
+    .gapcol{display:none}
+    .memocol{position:static;width:100%;margin-top:14px}
+    .memoCard{position:static!important;margin-bottom:10px}
+    .conn{display:none}
+  }
+  @media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}.cal .day{min-height:76px}.brand h1{font-size:20px}}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="ka">
+  <div class="hd">
+    <div class="brand" id="brand">
+      <div>
+        <h1>わかちゃんのおへや🐼</h1>
+        <small>WAKACHAN'S ROOM 🎋 笹保存庫と笹ごよみ ／ ver.29（10/7）</small>
+      </div>
+    </div>
+    <div class="acts">
+      <button class="btn" id="bHelp">使い方</button>
+      <button class="btn" id="bRefresh">更新</button>
+      <button class="btn" id="bExp">書き出し</button>
+      <button class="btn" id="bImp">読み込み</button>
+      <button class="btn pri" id="bUp">笹をおく</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-v="list">笹保存庫</button>
+    <button class="tab" data-v="cal">笹ごよみ</button>
+  </div>
+
+  <div class="wrap">
+    <div class="status" id="status"><div class="top"><span class="dot"></span><span class="grow">保存先を確認しています…</span></div></div>
+    <div id="msg"></div>
+    <div class="loadbar" id="loadbar" style="display:none"><span class="lf"></span><span class="lf b"></span><span id="loadTxt">よみこみ中…</span></div>
+
+    <div id="vList" class="panel">
+      <div class="filters">
+        <select class="fin" id="fYear"><option value="">年度：すべて</option></select>
+        <select class="fin" id="fExam"><option value="">試験：すべて</option></select>
+        <select class="fin" id="fSubject"><option value="">科目：すべて</option></select>
+        <input class="fin search" id="q" placeholder="本文・メモを検索">
+        <button class="btn sm" id="bClear">条件を消す</button>
+        <span class="count"><b id="n">0</b> 通</span>
+      </div>
+      <div class="cards" id="cards"></div>
+    </div>
+
+    <div id="vCal" class="panel" style="display:none">
+      <div class="calhd">
+        <button class="btn sm" id="cPrev">← 前の月</button>
+        <h3 id="calTitle"></h3>
+        <button class="btn sm" id="cNext">次の月 →</button>
+        <button class="btn sm" id="cToday">今月</button>
+        <button class="btn pri sm" id="cAdd">予定を追加</button>
+      </div>
+      <div class="cal" id="cal"></div>
+      <p class="hint">🐼 のついた日は、その日に書いた答案です（執筆日から自動で出ます）。日付をクリックすると、その日の予定と答案が見られます。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const PFX='waka_';
+  const KIND={d:'d_', c:'c_', e:'e_'};        // 答案 / メモ / 予定
+  const FILEPFX=PFX+'f_';                     // 添付ファイル（必要なときだけ読む）
+  const IXKEY=k=>PFX+'ix_'+k;
+  const PROBE=PFX+'probe';
+  const AUTHOR='わかちゃん';
+  const SUBJECTS=['憲法','行政法','民法','商法','民事訴訟法','刑法','刑事訴訟法','倒産法','その他'];
+  const EXAMS=['予備試験','司法試験','法科大学院入試'];
+  const fixExam=v=>v==='ロー入試'?'法科大学院入試':(v||'');
+  const YEARS=['R9','R8','R7','R6','R5','R4','R3','R2','R1','H31','H30','H29','H28','H27','H26','H25','H24','H23','旧司法'];
+  const POLL=90000, PER_PAGE=23, MAXFILE=3.4*1024*1024;
+
+  let mode='memory', shared=true, diag='', lastSync=null, busy=false, view='list';
+  let drafts=[], comments=[], events=[], mem={d:[],c:[],e:[]}, memFiles={};
+  let filt={year:'',exam:'',subject:'',q:''};
+  let page=1; const PER_LIST=20;
+  let calCur=new Date();
+
+  if(window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const $=s=>document.querySelector(s);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const chars=t=>(t||'').replace(/\s/g,'').length;
+  const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  const emsg=e=>(e&&e.message)?e.message:String(e);
+  const pad=n=>String(n).padStart(2,'0');
+  const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  const STARS=['','もう一度','あと少し','まずまず','よく書けた','完璧'];
+  function rateHTML(v){
+    let h='';
+    for(let i=1;i<=5;i++) h+='<button type="button" class="pb'+(i<=v?'':' off')+'" data-r="'+i+'" title="'+STARS[i]+'">\u{1F43C}</button>';
+    h+='<span class="rlbl">'+(v?v+' ／ 5　'+STARS[v]:'未評価')+'</span>';
+    return h;
+  }
+  function wireRate(host,get,set){
+    host.innerHTML=rateHTML(get());
+    host.querySelectorAll('.pb').forEach(function(b){
+      b.onclick=function(){ const n=Number(b.dataset.r); set(get()===n?0:n); wireRate(host,get,set); };
+    });
+  }
+  function fmtWhen(iso){
+    if(!iso) return '';
+    const t=new Date(iso);
+    if(isNaN(t.getTime())) return String(iso).slice(0,16).replace('T',' ');
+    return t.getFullYear()+'/'+pad(t.getMonth()+1)+'/'+pad(t.getDate())+' '+pad(t.getHours())+':'+pad(t.getMinutes());
+  }
+  function fmtDay(iso){
+    if(!iso) return '';
+    const t=new Date(iso);
+    if(isNaN(t.getTime())) return String(iso).slice(0,10);
+    return t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate());
+  }
+
+  /* パンダ */
+  function panda(s){
+    return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 48 48" aria-hidden="true">'
+      +'<circle cx="12" cy="12.5" r="7" fill="#2F3438"/><circle cx="36" cy="12.5" r="7" fill="#2F3438"/>'
+      +'<circle cx="12" cy="12.5" r="3.2" fill="#8C7F86"/><circle cx="36" cy="12.5" r="3.2" fill="#8C7F86"/>'
+      +'<ellipse cx="24" cy="27" rx="17.5" ry="15.5" fill="#FFFFFF" stroke="#2F3438" stroke-width="1.6"/>'
+      +'<ellipse cx="17" cy="25" rx="5.2" ry="6.2" fill="#2F3438" transform="rotate(-14 17 25)"/>'
+      +'<ellipse cx="31" cy="25" rx="5.2" ry="6.2" fill="#2F3438" transform="rotate(14 31 25)"/>'
+      +'<circle cx="17.6" cy="25.2" r="1.9" fill="#FFFFFF"/><circle cx="30.4" cy="25.2" r="1.9" fill="#FFFFFF"/>'
+      +'<ellipse cx="24" cy="32" rx="3" ry="2.2" fill="#2F3438"/>'
+      +'<path d="M20.5 35.6 Q24 38.4 27.5 35.6" stroke="#2F3438" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+      +'<circle cx="10.5" cy="31" r="2.6" fill="#E8A2AC" opacity=".6"/><circle cx="37.5" cy="31" r="2.6" fill="#E8A2AC" opacity=".6"/>'
+      +'</svg>';
+  }
+  function toast(m){
+    const e=document.createElement('div');e.className='toast';
+    e.innerHTML=panda(18)+'<span>'+esc(m)+'</span>';
+    document.body.appendChild(e);setTimeout(()=>e.remove(),2600);
+  }
+  function showMsg(h){$('#msg').innerHTML=h||'';}
+  let loadN=0;
+  function setLoading(on,txt){
+    const bar=$('#loadbar');
+    if(on){ loadN++; if(txt) $('#loadTxt').textContent=txt; bar.style.display=''; }
+    else { loadN=Math.max(0,loadN-1); if(loadN===0) bar.style.display='none'; }
+  }
+  /* 笹の葉 */
+  function leaf(w,fill,rot,op){
+    const h=Math.round(w*0.62);
+    return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 100 62" aria-hidden="true" '
+      +'style="transform:rotate('+(rot||0)+'deg);opacity:'+(op||1)+'">'
+      +'<path d="M4 54 C22 16 62 2 96 6 C80 44 40 62 4 54Z" fill="'+(fill||'#8FBF7E')+'"/>'
+      +'<path d="M4 54 C40 44 74 26 96 6" stroke="#FFFFFF" stroke-width="2.2" fill="none" opacity=".65"/>'
+      +'</svg>';
+  }
+  $('#brand').insertAdjacentHTML('afterbegin',
+    '<span style="display:flex;align-items:center;gap:2px">'
+    +leaf(26,'#B7D6A8',-24,.95)+panda(42)+leaf(20,'#8FBF7E',148,.9)+'</span>');
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.insertAdjacentHTML('afterbegin',leaf(15,'#9CCB8B',-18,.9));
+  });
+
+  /* ============ 保存先の診断 ============ */
+  async function diagnose(){
+    diag=''; const log=[];
+    if(!window.storage){ mode='memory'; diag='window.storage がこの画面に用意されていません。'; return; }
+    for(const sh of [true,false]){
+      try{
+        const w=await window.storage.set(PROBE,'ok',sh);
+        if(!w) throw new Error('set が空を返しました');
+        const r=await window.storage.get(PROBE,sh);
+        if(!r||r.value!=='ok') throw new Error('書いた値を読み戻せません');
+        let canList=false, lerr='';
+        try{ const l=await window.storage.list(PFX,sh); canList=!!(l&&Array.isArray(l.keys)); if(!canList) lerr='keys が返りません'; }
+        catch(e){ lerr=emsg(e); }
+        try{ await window.storage.delete(PROBE,sh); }catch(e){}
+        shared=sh; mode = sh ? (canList?'list':'index') : 'local';
+        diag='共有保存='+(sh?'可':'不可')+' ／ 一覧取得='+(canList?'可':'不可'+(lerr?'（'+lerr+'）':''))
+             +(canList?'':'\n→ 目次キーで管理します。')+(log.length?'\n'+log.join('\n'):'');
+        return;
+      }catch(e){ log.push('shared='+sh+' → '+emsg(e)); }
+    }
+    mode='memory'; diag=log.join('\n');
+  }
+
+  function paintStatus(){
+    const el=$('#status');
+    el.className='status'+(mode==='memory'?' bad':(mode==='local'?' warn':''));
+    let head;
+    if(mode==='list'||mode==='index') head=window.__idb?'このブラウザの中に保存されています。同じ端末・同じブラウザで開けば、いつでも同じ答案が出てきます。':'ちゃんと保存されています。この画面を開けば、いつでも同じ答案が出てきます。';
+    else if(mode==='local') head='共有の保存先に届きませんでした。いまはこの端末のこの画面だけに残ります。';
+    else head='保存できません。閉じると消えます。必ず「書き出し」で控えを取ってください。';
+    const t=lastSync?('最終更新 '+pad(lastSync.getHours())+':'+pad(lastSync.getMinutes())+':'+pad(lastSync.getSeconds())):'未取得';
+    el.innerHTML='<div class="top"><span class="dot"></span><span class="grow">'+esc(head)+'</span>'
+      +'<span>答案 <span class="num">'+drafts.length+'</span>　メモ <span class="num">'+comments.length+'</span>　予定 <span class="num">'+events.length+'</span></span>'
+      +'<span>'+esc(t)+'</span>'
+      +'<button class="btn sm" id="bDiag">詳細</button><button class="btn sm" id="bRe">保存先を再確認</button></div>'
+      +'<div class="detail" id="diagBox" style="display:none">'+esc(diag||'（追加情報なし）')+'</div>';
+    $('#bDiag').onclick=()=>{const d=$('#diagBox');d.style.display=d.style.display==='none'?'block':'none';};
+    $('#bRe').onclick=async()=>{ await diagnose(); await loadAll(); toast('保存先を確認しました'); };
+  }
+
+  /* ============ 保存の実体 ============ */
+  function isRateLimited(e){ return /rate limit/i.test(emsg(e)); }
+  async function retry(fn,label){
+    let last;
+    for(let i=0;i<3;i++){
+      try{ return await fn(); }
+      catch(e){
+        last=e;
+        if(isRateLimited(e)) throw new Error('書き込みが立て込んだため、保存の受付が一時的に止められました。少し待つか、画面を開き直すと元に戻ります。（'+label+'）');
+        await sleep(900*(i+1));
+      }
+    }
+    throw new Error(label+'に失敗しました：'+emsg(last));
+  }
+  const S={
+    get:k=>window.storage.get(k,shared),
+    set:(k,v)=>window.storage.set(k,v,shared),
+    del:k=>window.storage.delete(k,shared),
+    list:p=>window.storage.list(p,shared)
+  };
+  async function readIx(k){
+    try{ const r=await S.get(IXKEY(k)); const a=r?JSON.parse(r.value):[]; return Array.isArray(a)?a:[]; }catch(e){ return []; }
+  }
+  async function ixAdd(k,id){
+    const cur=await readIx(k);
+    if(cur.indexOf(id)<0){ cur.push(id); await retry(()=>S.set(IXKEY(k),JSON.stringify(cur)),'目次の更新'); }
+  }
+  async function ixDel(k,id){
+    const cur=await readIx(k);
+    try{ await S.set(IXKEY(k),JSON.stringify(cur.filter(x=>x!==id))); }catch(e){}
+  }
+  /* --- 本体は1つのまとまりで読み書きする（通信を最小限にする） --- */
+  const BOOK=PFX+'book';
+  let bookLoaded=false;
+  async function saveBook(){
+    if(mode==='memory') return;
+    const payload=JSON.stringify({v:1,drafts:drafts,comments:comments,events:events});
+    const w=await retry(()=>S.set(BOOK,payload),'保存');
+    if(!w) throw new Error('保存が受け付けられませんでした');
+  }
+  async function loadBook(){
+    if(mode==='memory'){ return {drafts:mem.d.slice(),comments:mem.c.slice(),events:mem.e.slice()}; }
+    let b=null;
+    try{ const r=await S.get(BOOK); if(r) b=JSON.parse(r.value); }catch(e){ b=null; }
+    if(b && Array.isArray(b.drafts)) return {drafts:b.drafts,comments:b.comments||[],events:b.events||[]};
+    const old=await fetchLegacy();
+    if(old.drafts.length||old.comments.length||old.events.length){
+      drafts=old.drafts; comments=old.comments; events=old.events;
+      try{ await saveBook(); }catch(e){}
+    }
+    return old;
+  }
+  async function fetchLegacy(){
+    const out={drafts:[],comments:[],events:[]};
+    const keyOf={d:'drafts',c:'comments',e:'events'};
+    for(const k of ['d','c','e']){
+      let ids=[];
+      try{
+        if(mode==='list'){
+          const l=await S.list(PFX+KIND[k]);
+          const keys=(l&&Array.isArray(l.keys))?l.keys.map(x=>typeof x==='string'?x:(x&&x.key)||'').filter(Boolean):[];
+          ids=keys.map(x=>x.slice((PFX+KIND[k]).length)).filter(Boolean);
+        }else{ ids=await readIx(k); }
+      }catch(e){ ids=[]; }
+      for(let i=0;i<ids.length;i+=4){
+        const part=await Promise.all(ids.slice(i,i+4).map(async id=>{
+          try{ const r=await S.get(PFX+KIND[k]+id); if(!r) return null; const v=JSON.parse(r.value); v.id=v.id||id; return v; }
+          catch(e){ return null; }
+        }));
+        part.forEach(v=>{ if(v) out[keyOf[k]].push(v); });
+        await sleep(120);
+      }
+    }
+    return out;
+  }
+  async function putKind(k,rec){
+    const arr = k==='d'?drafts : (k==='c'?comments:events);
+    const i=arr.findIndex(x=>x.id===rec.id);
+    const backup=i>=0?arr[i]:null;
+    if(i>=0) arr[i]=rec; else arr.push(rec);
+    if(mode==='memory'){ mem.d=drafts.slice(); mem.c=comments.slice(); mem.e=events.slice(); return; }
+    try{ await saveBook(); }
+    catch(e){
+      if(backup) arr[i]=backup; else { const j=arr.findIndex(x=>x.id===rec.id); if(j>=0) arr.splice(j,1); }
+      throw e;
+    }
+  }
+  async function delKind(k,id){
+    let arr = k==='d'?drafts : (k==='c'?comments:events);
+    const keep=arr.slice();
+    const next=arr.filter(x=>x.id!==id);
+    if(k==='d') drafts=next; else if(k==='c') comments=next; else events=next;
+    if(mode==='memory'){ mem.d=drafts.slice(); mem.c=comments.slice(); mem.e=events.slice(); return; }
+    try{ await saveBook(); }
+    catch(e){
+      if(k==='d') drafts=keep; else if(k==='c') comments=keep; else events=keep;
+      throw e;
+    }
+  }
+
+  /* --- 添付ファイル（一覧では読まない） --- */
+  const fkey=(did,slot)=>FILEPFX+did+'_'+slot;
+  async function putFile(did,slot,obj){
+    if(mode==='memory'){ memFiles[did+'_'+slot]=obj; return; }
+    const w=await retry(()=>S.set(fkey(did,slot),JSON.stringify(obj)),'ファイルの保存');
+    if(!w) throw new Error('ファイルの保存が受け付けられませんでした');
+  }
+  async function getFile(did,slot){
+    if(mode==='memory') return memFiles[did+'_'+slot]||null;
+    try{ const r=await S.get(fkey(did,slot)); return r?JSON.parse(r.value):null; }catch(e){ return null; }
+  }
+  async function delFile(did,slot){
+    if(mode==='memory'){ delete memFiles[did+'_'+slot]; return; }
+    try{ await S.del(fkey(did,slot)); }catch(e){}
+  }
+
+  function sortAll(){
+    drafts.sort((a,b)=>((b.writtenDate||fmtDay(b.uploadedAt))+(b.uploadedAt||''))
+                  .localeCompare((a.writtenDate||fmtDay(a.uploadedAt))+(a.uploadedAt||'')));
+    comments.sort((a,b)=>(a.at||'').localeCompare(b.at||''));
+    events.sort((a,b)=>((a.date||'')+(a.time||'')).localeCompare((b.date||'')+(b.time||'')));
+  }
+  function localPut(k,rec){ sortAll(); paintStatus(); buildFilters(); render(); }
+  function localDel(k,id){ paintStatus(); buildFilters(); render(); }
+  async function loadAll(quiet){
+    if(busy) return; busy=true;
+    try{
+      const b=await loadBook();
+      drafts=b.drafts; comments=b.comments; events=b.events;
+      bookLoaded=true; sortAll(); lastSync=new Date();
+      if(!quiet) showMsg('');
+      paintStatus(); buildFilters(); render();
+    }catch(err){
+      showMsg('<div class="err"><b>'+esc(emsg(err))+'</b><br>'
+        +'「更新」で読み直せます。'
+        +'「書き込みが立て込んだ」と出たときは、何も押さずに数分待つと元に戻ります。</div>');
+      paintStatus();
+    }finally{ busy=false; }
+  }
+
+  /* ============ 一覧 ============ */
+  function buildFilters(){
+    const usedY=YEARS.filter(y=>drafts.some(d=>d.year===y));
+    $('#fYear').innerHTML='<option value="">年度：すべて</option>'+usedY.map(y=>'<option'+(filt.year===y?' selected':'')+'>'+y+'</option>').join('');
+    drafts.forEach(d=>{ if(d.exam==='ロー入試') d.exam='法科大学院入試'; });
+    const usedE=EXAMS.filter(x=>drafts.some(d=>d.exam===x));
+    $('#fExam').innerHTML='<option value="">試験：すべて</option>'+usedE.map(x=>'<option'+(filt.exam===x?' selected':'')+'>'+x+'</option>').join('');
+    const usedS=SUBJECTS.filter(s=>drafts.some(d=>d.subject===s));
+    $('#fSubject').innerHTML='<option value="">科目：すべて</option>'+usedS.map(s=>'<option'+(filt.subject===s?' selected':'')+'>'+s+'</option>').join('');
+  }
+  function cCount(id){ return comments.filter(c=>c.draftId===id).length; }
+  function filtered(){
+    return drafts.filter(d=>{
+      if(filt.year&&d.year!==filt.year) return false;
+      if(filt.exam&&d.exam!==filt.exam) return false;
+      if(filt.subject&&d.subject!==filt.subject) return false;
+      if(filt.q){
+        const k=filt.q.toLowerCase();
+        const cs=comments.filter(c=>c.draftId===d.id).map(c=>c.body).join(' ');
+        if(![d.subject,d.year,d.exam,d.memo,d.filename,d.body,cs].join(' ').toLowerCase().includes(k)) return false;
+      }
+      return true;
+    });
+  }
+  function render(){
+    if(view==='cal'){ renderCal(); return; }
+    const rows=filtered(); $('#n').textContent=rows.length;
+    const maxP=Math.max(1,Math.ceil(rows.length/PER_LIST));
+    if(page>maxP) page=maxP;
+    const view_=rows.slice((page-1)*PER_LIST,page*PER_LIST);
+    const c=$('#cards');
+    if(!rows.length){
+      c.innerHTML='<div class="empty"><div style="display:flex;align-items:center;justify-content:center;gap:4px">'
+        +leaf(30,'#C9DEC2',-28,1)+panda(56)+leaf(24,'#9CCB8B',150,1)+'</div>'
+        +'<p>'+(drafts.length?'この条件に合う答案はありません。条件を消すと全部出ます。'
+          :'まだ答案がありません。Word・PDF・テキストのどれでもそのまま置けます。')+'</p>'
+        +'<button class="btn pri" id="e1">笹をおく</button></div>';
+      const b=$('#e1'); if(b) b.onclick=openUpload; return;
+    }
+    c.innerHTML=view_.map(d=>{
+      const ch=chars(d.body), nc=cCount(d.id);
+      const prev=(d.body||'').replace(/\s+/g,' ').slice(0,110)||(d.scan?'（本文はまだありません。原本の画像だけ入っています）':'');
+      const wd=d.writtenDate||'';
+      return '<button class="card" data-id="'+esc(d.id)+'">'
+        +'<span class="av">'+panda(30)+'</span><span class="bd">'
+        +'<span class="c1"><span class="yr">'+esc(d.year||'—')+'</span>'
+        +(d.exam?'<span class="kind">'+esc(fixExam(d.exam))+'</span>':'')
+        +'<span class="sub2">'+esc(d.subject||'—')+'</span>'
+        +(nc?'<span class="cmt">メモ '+nc+'</span>':'')
+        +(d.rate?'<span class="tagf">'+'\u{1F43C}'.repeat(d.rate)+'</span>':'')
+        +(d.hasProblem?'<span class="tagf">📄 問題つき</span>':'')
+        +(d.hasShushi?'<span class="tagf">📘 趣旨つき</span>':'')
+        +(d.scan?'<span class="tagf">📷 手書き原本</span>':'')
+        +(d.transcript==='claude'&&!d.checked?'<span class="cmt">要見なおし</span>':'')+'</span>'
+        +'<span class="c2"><span><b>'+ch.toLocaleString()+'</b> 字</span>'
+        +'<span><b>'+Math.max(1,Math.ceil(wrapLines(d.body).length/PER_PAGE))+'</b> 頁分</span>'
+        +'<span>書いた日 '+esc(wd||'—')+'</span>'
+        +(d.filename?'<span>'+esc(d.filename)+'</span>':'')+'</span>'
+        +(d.memo?'<span class="prev">'+esc(d.memo)+'</span>':(prev?'<span class="prev">'+esc(prev)+'</span>':''))
+        +'</span></button>';
+    }).join('');
+    if(maxP>1){
+      let nav='<div class="row" style="justify-content:center;margin-top:16px;gap:6px">'
+        +'<button class="btn sm" data-pg="'+(page-1)+'"'+(page===1?' disabled':'')+'>‹ 前</button>';
+      for(let i=1;i<=maxP;i++){
+        if(i===1||i===maxP||Math.abs(i-page)<=1) nav+='<button class="btn sm'+(i===page?' pri':'')+'" data-pg="'+i+'">'+i+'</button>';
+        else if(Math.abs(i-page)===2) nav+='<span style="color:var(--muted);font-size:12px">…</span>';
+      }
+      nav+='<button class="btn sm" data-pg="'+(page+1)+'"'+(page===maxP?' disabled':'')+'>次 ›</button></div>';
+      c.insertAdjacentHTML('beforeend',nav);
+      c.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>{ page=Number(b.dataset.pg); render(); window.scrollTo({top:0,behavior:'smooth'}); });
+    }
+    c.querySelectorAll('.card').forEach(el=>el.onclick=()=>openView(el.dataset.id));
+  }
+
+  /* ============ 本文の30字折り返し ============ */
+  function normText(t){
+    return String(t||'').replace(/\r\n?/g,'\n')
+      .replace(/[ \t\u3000]+$/gm,'')
+      .replace(/\n{2,}/g,'\n')
+      .replace(/^\n+|\n+$/g,'');
+  }
+  function wrapLines(text){
+    const out=[];
+    normText(text).split(/\n/).forEach(p=>{
+      if(p===''){ out.push(''); return; }
+      for(let i=0;i<p.length;i+=30) out.push(p.slice(i,i+30));
+    });
+    return out.length?out:[''];
+  }
+  function segHTML(l,start,ranges,re,sel){
+    const n=l.length;
+    if(!n) return '';
+    const cid=new Array(n).fill('');
+    (ranges||[]).forEach(r=>{
+      const a=Math.max(r.s-start,0), b=Math.min(r.e-start,n);
+      for(let k=a;k<b;k++) cid[k]=r.id;
+    });
+    const hit=new Array(n).fill(false);
+    if(re){ re.lastIndex=0; let m;
+      while((m=re.exec(l))!==null){
+        for(let k=m.index;k<m.index+m[0].length;k++) hit[k]=true;
+        if(m.index===re.lastIndex) re.lastIndex++;
+      } }
+    const sl=new Array(n).fill(false);
+    if(sel){ const a=Math.max(sel.s-start,0), b=Math.min(sel.e-start,n); for(let k=a;k<b;k++) sl[k]=true; }
+    let out='',k=0;
+    while(k<n){
+      let j=k;
+      while(j<n && cid[j]===cid[k] && hit[j]===hit[k] && sl[j]===sl[k]) j++;
+      const t=esc(l.slice(k,j));
+      const cls=[cid[k]?'cm':'',hit[k]?'hit':'',sl[k]?'sel':''].filter(Boolean).join(' ');
+      out += cls ? '<span class="'+cls+'"'+(cid[k]?' data-cid="'+esc(cid[k])+'"':'')+'>'+t+'</span>' : t;
+      k=j;
+    }
+    return out;
+  }
+  function sheetHTML(text,q,ranges,sel){
+    const ls=wrapLines(text);
+    let re=null;
+    if(q){ try{ re=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'); }catch(e){} }
+    let html='', abs=0;
+    ls.forEach(function(l,i){
+      const n=i+1;
+      if(n>1 && (n-1)%PER_PAGE===0) html+='<div class="pgmark">'+((n-1)/PER_PAGE+1)+'頁目</div>';
+      html+='<li data-i="'+i+'" data-a="'+abs+'"><span class="ln">'+(((n-1)%PER_PAGE)+1)+'</span>'
+           +'<span class="tx">'+segHTML(l,abs,ranges,re,sel)+'</span></li>';
+      abs+=l.length;
+    });
+    return '<ul class="sheet">'+html+'</ul>';
+  }
+
+  /* ============ Wordのコメント読み取り ============ */
+  function attrId(el){ for(let i=0;i<el.attributes.length;i++){ const a=el.attributes[i]; if(a.localName==='id') return a.value; } return null; }
+  function paraText(el){
+    const out=[];
+    const all=el.getElementsByTagName('*');
+    for(let i=0;i<all.length;i++){
+      if(all[i].localName!=='p') continue;
+      let t='', rs=all[i].getElementsByTagName('*');
+      for(let j=0;j<rs.length;j++){ if(rs[j].localName==='t') t+=rs[j].textContent; }
+      if(t.trim()) out.push(t);
+    }
+    return out.join('\n');
+  }
+  async function readDocx(file){
+    if(!window.JSZip) throw new Error('Wordを読む部品を読み込めませんでした');
+    const zip=await window.JSZip.loadAsync(await file.arrayBuffer());
+    const df=zip.file('word/document.xml');
+    if(!df) throw new Error('Wordの中身を取り出せませんでした');
+    const doc=new DOMParser().parseFromString(await df.async('string'),'application/xml');
+    let text='', rg={};
+    (function walk(n){
+      for(let c=n.firstChild;c;c=c.nextSibling){
+        if(c.nodeType!==1) continue;
+        const ln=c.localName;
+        if(ln==='t') text+=c.textContent;
+        else if(ln==='tab') text+='　';
+        else if(ln==='br') text+='\n';
+        else if(ln==='commentRangeStart'){ const id=attrId(c); if(id!=null){ rg[id]=rg[id]||{}; rg[id].s=text.length; } }
+        else if(ln==='commentRangeEnd'){ const id=attrId(c); if(id!=null){ rg[id]=rg[id]||{}; rg[id].e=text.length; } }
+        else if(ln==='commentReference'){ const id=attrId(c); if(id!=null&&rg[id]&&rg[id].e==null) rg[id].e=text.length; }
+        else { walk(c); if(ln==='p') text+='\n'; }
+      }
+    })(doc.documentElement);
+    const list=[];
+    const cf=zip.file('word/comments.xml');
+    if(cf){
+      const cx=new DOMParser().parseFromString(await cf.async('string'),'application/xml');
+      const all=cx.getElementsByTagName('*');
+      for(let i=0;i<all.length;i++){
+        const e=all[i]; if(e.localName!=='comment') continue;
+        const id=attrId(e), body=paraText(e).trim();
+        if(!body) continue;
+        let au=''; for(let k=0;k<e.attributes.length;k++){ if(e.attributes[k].localName==='author') au=e.attributes[k].value; }
+        const r=rg[id]||{};
+        const q=(r.s!=null&&r.e!=null&&r.e>r.s)?text.slice(r.s,r.e):'';
+        list.push({id:id,body:body,author:au,quote:q});
+      }
+    }
+    return {text:text,comments:list};
+  }
+  function findAnchor(body,quote){
+    const q=String(quote||'').replace(/\s/g,'');
+    if(q.length<2) return null;
+    const map=[]; let sq='';
+    for(let i=0;i<body.length;i++){ if(!/\s/.test(body[i])){ map.push(i); sq+=body[i]; } }
+    let k=sq.indexOf(q);
+    if(k<0&&q.length>24) k=sq.indexOf(q.slice(0,24));
+    if(k<0) return null;
+    const len=Math.min(q.length,sq.length-k);
+    return {s:map[k],e:map[k+len-1]+1};
+  }
+
+  /* ============ ファイル読み取り ============ */
+  function toB64(file){
+    return new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=()=>res(String(r.result).split(',')[1]||'');
+      r.onerror=()=>rej(new Error('ファイルを読めませんでした'));
+      r.readAsDataURL(file);
+    });
+  }
+  function b64ToU8(b64){
+    const bin=atob(b64), u=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+    return u;
+  }
+  async function pdfToText(u8){
+    if(!window.pdfjsLib) throw new Error('PDFを読む部品を読み込めませんでした');
+    const doc=await window.pdfjsLib.getDocument({data:u8}).promise;
+    const pages=[];
+    for(let p=1;p<=doc.numPages;p++){
+      const pg=await doc.getPage(p), tc=await pg.getTextContent();
+      const lines=[]; let buf='', curY=null;
+      tc.items.forEach(function(it){
+        const y=Math.round(it.transform[5]);
+        if(curY===null){ curY=y; }
+        else if(Math.abs(y-curY)>2){ lines.push(buf); buf=''; curY=y; }
+        buf+=it.str;
+        if(it.hasEOL){ lines.push(buf); buf=''; curY=null; }
+      });
+      if(buf) lines.push(buf);
+      pages.push(lines.join('\n'));
+    }
+    return pages.join('\n').trim();
+  }
+  function setLoadText(t){ const e=document.querySelector('#loadTxt'); if(e) e.textContent=t; }
+  function loadImg(b64){
+    return new Promise(function(res,rej){
+      const im=new Image();
+      im.onload=function(){res(im);}; im.onerror=function(){rej(new Error('画像を読めませんでした'));};
+      im.src='data:image/jpeg;base64,'+b64;
+    });
+  }
+  async function pdfToImages(u8,onp){
+    if(!window.pdfjsLib) throw new Error('PDFを読む部品を読み込めませんでした');
+    const doc=await window.pdfjsLib.getDocument({data:u8}).promise;
+    const out=[];
+    for(let p=1;p<=doc.numPages;p++){
+      if(onp) onp(p,doc.numPages);
+      const pg=await doc.getPage(p);
+      const v1=pg.getViewport({scale:1});
+      const vp=pg.getViewport({scale:Math.min(1600/v1.width,3)});
+      const cv=document.createElement('canvas');
+      cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
+      const cx=cv.getContext('2d');
+      cx.fillStyle='#FFFFFF'; cx.fillRect(0,0,cv.width,cv.height);
+      await pg.render({canvasContext:cx,viewport:vp}).promise;
+      let q=0.72, b64=cv.toDataURL('image/jpeg',q).split(',')[1];
+      while(b64.length>MAXFILE*0.9 && q>0.34){ q-=0.12; b64=cv.toDataURL('image/jpeg',q).split(',')[1]; }
+      out.push({data:b64});
+      await sleep(0);
+    }
+    return out;
+  }
+  function loadImgAny(src){
+    return new Promise(function(res,rej){
+      const im=new Image();
+      im.onload=function(){res(im);}; im.onerror=function(){rej(new Error('画像を読めませんでした'));};
+      im.src=src;
+    });
+  }
+  function withTimeout(p,ms,label){
+    return Promise.race([p,new Promise(function(_,rej){
+      setTimeout(function(){ rej(new Error(label+'に時間がかかりすぎました。写真を小さくするか、PDFにして試してください。')); },ms);
+    })]);
+  }
+  async function decodeImage(file){
+    if(window.createImageBitmap){
+      try{ return await withTimeout(createImageBitmap(file),20000,'写真の読み取り'); }catch(e){}
+    }
+    const url=URL.createObjectURL(file);
+    try{ return await withTimeout(loadImgAny(url),20000,'写真の読み取り'); }
+    finally{ setTimeout(function(){ try{URL.revokeObjectURL(url);}catch(e){} },2000); }
+  }
+  async function shrinkImage(file){
+    const im=await decodeImage(file);
+    const sc=Math.min(1,1600/Math.max(im.width,im.height));
+    const cv=document.createElement('canvas');
+    cv.width=Math.max(1,Math.round(im.width*sc)); cv.height=Math.max(1,Math.round(im.height*sc));
+    const cx=cv.getContext('2d');
+    cx.fillStyle='#FFFFFF'; cx.fillRect(0,0,cv.width,cv.height);
+    cx.drawImage(im,0,0,cv.width,cv.height);
+    if(im.close) try{ im.close(); }catch(e){}
+    await sleep(0);
+    let q=0.72, b64=cv.toDataURL('image/jpeg',q).split(',')[1];
+    while(b64.length>MAXFILE*0.9 && q>0.34){ q-=0.12; b64=cv.toDataURL('image/jpeg',q).split(',')[1]; }
+    cv.width=1; cv.height=1;
+    return b64;
+  }
+  async function cropPart(b64,from,to){
+    const im=await loadImg(b64);
+    const y=Math.round(im.height*from), h=Math.round(im.height*(to-from));
+    const cv=document.createElement('canvas'); cv.width=im.width; cv.height=h;
+    cv.getContext('2d').drawImage(im,0,y,im.width,h,0,0,im.width,h);
+    return cv.toDataURL('image/jpeg',0.75).split(',')[1];
+  }
+  async function askClaude(b64,note){
+    const prompt='これは日本語の手書き答案をスキャンした画像です'+(note?'（'+note+'）':'')+'。'
+      +'書かれている文字を、そのまま書き写してください。\n'
+      +'・要約・説明・前置き・感想は一切書かず、答案の文字だけを出力する\n'
+      +'・改行は原文のとおりにする\n'
+      +'・誤字や言い回しも直さず、書かれたとおりに写す\n'
+      +'・どうしても読めない文字は ［？］ と書く\n'
+      +'・推測で言葉を補わない';
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+          {type:'text',text:prompt}]}]})
+    });
+    if(!res.ok) throw new Error('文字起こしができませんでした（'+res.status+'）');
+    const data=await res.json();
+    const t=(data.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('').trim();
+    return {text:t,cut:data.stop_reason==='max_tokens'};
+  }
+  async function transcribePage(b64,i,n){
+    setLoadText(i+'/'+n+' ページ目を読んでいます…');
+    const r=await askClaude(b64,'');
+    if(!r.cut) return r.text;
+    setLoadText(i+'/'+n+' ページ目（上半分）を読んでいます…');
+    const a=await askClaude(await cropPart(b64,0,0.56),'ページの上半分');
+    setLoadText(i+'/'+n+' ページ目（下半分）を読んでいます…');
+    const b=await askClaude(await cropPart(b64,0.50,1),'ページの下半分');
+    return a.text+'\n'+b.text;
+  }
+  async function transcribeAll(pages){
+    const out=[];
+    for(let i=0;i<pages.length;i++) out.push(await transcribePage(pages[i].data,i+1,pages.length));
+    return out.join('\n');
+  }
+  async function renderPdf(u8,box,maxPages){
+    const doc=await window.pdfjsLib.getDocument({data:u8}).promise;
+    const n=Math.min(doc.numPages,maxPages||8);
+    box.innerHTML='';
+    for(let p=1;p<=n;p++){
+      const pg=await doc.getPage(p);
+      const w=Math.min(box.clientWidth||700,900);
+      const v0=pg.getViewport({scale:1});
+      const vp=pg.getViewport({scale:w/v0.width});
+      const cv=document.createElement('canvas');
+      cv.width=vp.width; cv.height=vp.height;
+      box.appendChild(cv);
+      await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+    }
+    if(doc.numPages>n){
+      const p=document.createElement('p'); p.className='hint';
+      p.textContent='（全'+doc.numPages+'頁のうち'+n+'頁まで表示しています）';
+      box.appendChild(p);
+    }
+  }
+
+  /* ============ ドロワー ============ */
+  function closeDrawer(){document.querySelectorAll('.scrim,.drw').forEach(e=>e.remove());}
+  function drawer(title,html,acts){
+    closeDrawer();
+    const sc=document.createElement('div');sc.className='scrim';sc.onclick=closeDrawer;
+    const dw=document.createElement('div');dw.className='drw ka';
+    dw.innerHTML='<div class="dh"><h2>'+panda(24)+'<span>'+esc(title)+'</span></h2>'
+      +'<div class="row">'+(acts||'')+'<button class="btn" id="bX">閉じる</button></div></div><div class="db">'+html+'</div>';
+    document.body.appendChild(sc);document.body.appendChild(dw);
+    dw.querySelector('#bX').onclick=closeDrawer;
+    document.addEventListener('keydown',function h(e){if(e.key==='Escape'){closeDrawer();document.removeEventListener('keydown',h);}});
+    return dw;
+  }
+
+  /* ============ 答案を開く ============ */
+  function openView(id){
+    const d=drafts.find(x=>x.id===id); if(!d) return;
+    const ls=wrapLines(d.body), flat=ls.join(''), ch=chars(normText(d.body));
+    const prefix=[]; (function(){ let a=0; ls.forEach(function(l){ prefix.push(a); a+=l.length; }); })();
+    function lineOfAbs(a){ for(let i=ls.length-1;i>=0;i--) if(a>=prefix[i]) return i; return 0; }
+    const pageOf=i=>Math.floor(i/PER_PAGE)+1;
+    const rowOf=i=>(i%PER_PAGE)+1;
+    const label=i=>pageOf(i)+'頁目 '+rowOf(i)+'行目';
+
+    let sel=null, curQ='';
+
+    const html='<div class="meta">'
+      +'<span>年度 <b>'+esc(d.year||'—')+'</b></span><span>試験 <b>'+esc(fixExam(d.exam)||'—')+'</b></span>'
+      +'<span>科目 <b>'+esc(d.subject||'—')+'</b></span>'
+      +'<span>書いた日 <b>'+esc(d.writtenDate||'—')+'</b></span>'
+      +'<span>文字数 <b>'+ch.toLocaleString()+'</b> 字</span><span>行数 <b>'+ls.length+'</b> 行</span>'
+      +'<span>答案用紙 <b>'+Math.max(1,Math.ceil(ls.length/PER_PAGE))+'</b> 頁分</span>'
+      +'<span>登録 <b>'+esc(fmtDay(d.uploadedAt))+'</b></span>'
+      +(d.rate?'<span>自己評価 <b>'+'\u{1F43C}'.repeat(d.rate)+'</b></span>':'')+'</div>'
+      +'<div id="infoHost"></div><div id="memoHost"></div>'
+      +'<div id="attScan"></div><div id="attProblem"></div><div id="attShushi"></div><div id="editHost"></div>'
+      +'<div class="row" style="margin-bottom:10px"><input class="fin" id="rq" placeholder="本文内を検索" style="flex:1;max-width:320px">'
+      +'<span class="hint" style="margin:0">本文を<b>ドラッグして選ぶ</b>か行をクリックすると、その場でメモを書けます。</span></div>'
+      +'<div class="selbar" id="selbar" style="display:none"></div>'
+      +'<div style="border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:16px">'
+      +'<div style="font-size:11px;letter-spacing:.1em;color:var(--muted);font-weight:600;margin-bottom:6px">答案全体へのメモ</div>'
+      +'<textarea class="ta short" id="cBody2" placeholder="例：全体に規範が薄い。次はここを厚く。"></textarea>'
+      +'<div class="row" style="margin-top:8px"><button class="btn pri sm" id="cSend">全体にメモを付ける</button></div>'
+      +'<div id="cErr"></div></div>'
+      +'<div id="freeMemos"></div>'
+      +'<div class="vpane" id="vpane"></div>';
+
+    const dw=drawer((d.year||'')+'　'+(d.exam||'')+'　'+(d.subject||'答案'),html,
+      '<button class="btn sm" id="bCp">本文をコピー</button><button class="btn sm dgr" id="bDel">削除</button>');
+
+    const COLORS=['#C86E7C','#5F8F6E','#7C6EB0','#B98526','#3F7E97','#A8556F'];
+    let colorMap={};
+    const pane=dw.querySelector('#vpane');
+    const sheetcol=pane;
+
+    /* --- 添付の表示 --- */
+    function attBlock(hostSel,slot,title,emptyLabel,allowEdit){
+      const host=dw.querySelector(hostSel);
+      const HF={prb:['hasProblem','problemName'],shu:['hasShushi','shushiName']};
+      const kf=HF[slot]||HF.prb;
+      const has=d[kf[0]];
+      const nm=d[kf[1]]||'';
+      host.innerHTML='<div class="att"><div class="attHd" data-t="1">'
+        +'<span>📄</span><b style="font-weight:600">'+esc(title)+'</b>'
+        +'<span class="nm">'+esc(has?nm:emptyLabel)+'</span>'
+        +(has?'<button class="btn sm" data-open="1">開く</button>':'')
+        +(allowEdit?'<button class="btn sm" data-add="1">'+(has?'差し替え':'つける')+'</button>':'')
+        +(has&&allowEdit?'<button class="btn sm dgr" data-rm="1">外す</button>':'')
+        +'</div><div class="attBody" style="display:none"></div></div>'
+        +'<input type="file" data-file="1" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.md" style="display:none">';
+      const body=host.querySelector('.attBody'), fi=host.querySelector('[data-file]');
+      const ob=host.querySelector('[data-open]');
+      if(ob) ob.onclick=async function(ev){
+        ev.stopPropagation();
+        if(body.style.display!=='none'){ body.style.display='none'; ob.textContent='開く'; return; }
+        body.style.display=''; ob.textContent='とじる'; body.innerHTML='<p class="hint">よみこみ中…</p>';
+        setLoading(true,'ひらいています…');
+        const f=await getFile(d.id,slot);
+        setLoading(false);
+        if(!f){ body.innerHTML='<p class="hint">ファイルが見つかりませんでした。</p>'; return; }
+        try{
+          if((f.type||'').indexOf('pdf')>=0){ await renderPdf(b64ToU8(f.data),body,10); }
+          else if((f.type||'').indexOf('image')>=0){ body.innerHTML='<img alt="'+esc(f.name)+'" src="data:'+esc(f.type)+';base64,'+f.data+'">'; }
+          else { body.innerHTML='<pre>'+esc(atob(f.data))+'</pre>'; }
+        }catch(e){ body.innerHTML='<p class="hint">表示できませんでした（'+esc(emsg(e))+'）</p>'; }
+      };
+      const ab=host.querySelector('[data-add]');
+      if(ab) ab.onclick=function(ev){ ev.stopPropagation(); fi.click(); };
+      fi.onchange=async function(ev){
+        const f=ev.target.files[0]; if(!f) return;
+        if(f.size>MAXFILE){ toast('ファイルが大きすぎます（3.4MBまで）'); return; }
+        try{
+          const b64=await toB64(f);
+          await putFile(d.id,slot,{name:f.name,type:f.type||'application/octet-stream',data:b64});
+          d[kf[0]]=true; d[kf[1]]=f.name;
+          await putKind('d',d); localPut('d',d);
+          attBlock(hostSel,slot,title,emptyLabel,allowEdit);
+          toast('つけました');
+        }catch(e){ toast(emsg(e)); }
+      };
+      const rb=host.querySelector('[data-rm]');
+      if(rb) rb.onclick=async function(ev){
+        ev.stopPropagation();
+        if(rb.dataset.a!=='1'){ rb.dataset.a='1'; rb.textContent='もう一度'; return; }
+        try{
+          await delFile(d.id,slot);
+          d[kf[0]]=false; d[kf[1]]='';
+          await putKind('d',d); localPut('d',d);
+          attBlock(hostSel,slot,title,emptyLabel,allowEdit); toast('外しました');
+        }catch(e){ toast(emsg(e)); }
+      };
+    }
+    attBlock('#attProblem','prb','問題','まだついていません（あとからでも入れられます）',true);
+    attBlock('#attShushi','shu','出題趣旨・評価のポイント','まだついていません（あとからでも入れられます）',true);
+
+    /* --- 手書きの原本と文字起こし --- */
+    async function loadPages(){
+      const out=[];
+      for(let i=1;i<=(d.pageCount||0);i++){
+        setLoadText('原本をよみこんでいます…（'+i+'/'+d.pageCount+'）');
+        const f=await getFile(d.id,'p'+i);
+        if(f) out.push({data:f.data});
+      }
+      return out;
+    }
+    async function addScan(f){
+      setLoading(true,'原本を読んでいます…');
+      try{
+        let pages;
+        if(/\.pdf$/i.test(f.name)||(f.type||'').indexOf('pdf')>=0){
+          const buf=await f.arrayBuffer();
+          pages=await pdfToImages(new Uint8Array(buf.slice(0)),function(i,n){ setLoadText('ページを画像にしています…（'+i+'/'+n+'）'); });
+        }else{
+          setLoadText('写真を小さくしています…');
+          pages=[{data:await shrinkImage(f)}];
+        }
+        if(!pages.length) throw new Error('ページを取り出せませんでした');
+        for(let i=0;i<pages.length;i++){
+          setLoadText('原本を保存しています…（'+(i+1)+'/'+pages.length+'）');
+          await putFile(d.id,'p'+(i+1),{name:'p'+(i+1)+'.jpg',type:'image/jpeg',data:pages[i].data});
+        }
+        d.scan=true; d.pageCount=pages.length;
+        await putKind('d',d); localPut('d',d);
+        paintScan(); toast('原本をつけました');
+      }catch(e){ toast(emsg(e)); }
+      finally{ setLoading(false); }
+    }
+    function paintScan(){
+      const host=dw.querySelector('#attScan');
+      if(!d.scan){
+        host.innerHTML='<div class="att"><div class="attHd">'
+          +'<span>📷</span><b style="font-weight:600">手書きの原本</b>'
+          +'<span class="nm">まだついていません</span>'
+          +'<button class="btn sm" data-addscan="1">あとからつける</button>'
+          +'</div></div>'
+          +'<div class="row" style="margin:8px 0 14px"><button class="btn sm" data-edit="1">本文をなおす</button></div>'
+          +'<input type="file" data-scanfile="1" accept=".pdf,.png,.jpg,.jpeg,.heic,image/*,application/pdf" style="display:none">';
+        const fi=host.querySelector('[data-scanfile]');
+        host.querySelector('[data-addscan]').onclick=function(){ fi.click(); };
+        fi.onchange=function(ev){ const f=ev.target.files[0]; if(f) addScan(f); };
+        const eb0=host.querySelector('[data-edit]');
+        if(eb0) eb0.onclick=openEditor;
+        return;
+      }
+      const warn=(d.transcript==='claude'&&!d.checked);
+      host.innerHTML='<div class="att"><div class="attHd">'
+        +'<span>📷</span><b style="font-weight:600">手書きの原本</b>'
+        +'<span class="nm">'+(d.pageCount||0)+'ページ</span>'
+        +'<button class="btn sm" data-p="1">見る</button>'
+        +(d.body?'<button class="btn sm" data-ocr="1">文字起こしをやり直す</button>'
+                :'<button class="btn pri sm" data-ocr="1">Claudeに文字起こしさせる</button>')
+        +'</div><div class="attBody" style="display:none"></div></div>'
+        +(warn?'<div class="err">下の本文は<b>Claudeの文字起こし（下書き）</b>です。読み違いが混じります。'
+          +'原本と見くらべて直してください。<br>'
+          +'<button class="btn sm" data-edit="1" style="margin-top:7px">本文をなおす</button> '
+          +'<button class="btn sm" data-ok="1" style="margin-top:7px">見なおし済みにする</button></div>'
+         :'<div class="row" style="margin:8px 0 14px"><button class="btn sm" data-edit="1">本文をなおす</button></div>');
+      const body=host.querySelector('.attBody'), pb=host.querySelector('[data-p]');
+      pb.onclick=async function(){
+        if(body.style.display!=='none'){ body.style.display='none'; pb.textContent='見る'; return; }
+        body.style.display=''; pb.textContent='とじる'; body.innerHTML='<p class="hint">よみこみ中…</p>';
+        setLoading(true,'原本をよみこんでいます…');
+        try{
+          const ps=await loadPages();
+          body.innerHTML=ps.length?ps.map(x=>'<img alt="原本" src="data:image/jpeg;base64,'+x.data+'">').join('')
+                                  :'<p class="hint">原本が見つかりませんでした。</p>';
+        }catch(e){ body.innerHTML='<p class="hint">'+esc(emsg(e))+'</p>'; }
+        finally{ setLoading(false); }
+      };
+      const ob=host.querySelector('[data-ocr]');
+      if(ob) ob.onclick=async function(){
+        if(d.body && ob.dataset.a!=='1'){ ob.dataset.a='1'; ob.textContent='もう一度押すと本文を入れ替え'; return; }
+        ob.disabled=true; setLoading(true,'文字起こしをしています…');
+        try{
+          const ps=await loadPages();
+          if(!ps.length) throw new Error('原本の画像が見つかりませんでした');
+          const txt=await transcribeAll(ps);
+          d.body=normText(txt); d.transcript='claude'; d.checked=false;
+          await putKind('d',d); localPut('d',d);
+          closeDrawer(); openView(id); toast('文字起こしの下書きができました');
+        }catch(e){ ob.disabled=false; ob.textContent='もう一度やる'; toast(emsg(e)); }
+        finally{ setLoading(false); }
+      };
+      const okb=host.querySelector('[data-ok]');
+      if(okb) okb.onclick=async function(){
+        try{ d.checked=true; await putKind('d',d); localPut('d',d); paintScan(); toast('見なおし済みにしました'); }
+        catch(e){ toast(emsg(e)); }
+      };
+      const eb=host.querySelector('[data-edit]');
+      if(eb) eb.onclick=openEditor;
+    }
+    function openEditor(){
+      const host=dw.querySelector('#editHost');
+      const anchored=comments.filter(c=>c.draftId===id&&c.s!==undefined&&c.s!==null).length;
+      host.innerHTML='<div style="border:1px solid var(--sasa);background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:16px">'
+        +'<div style="font-size:11px;letter-spacing:.1em;color:var(--muted);font-weight:600;margin-bottom:6px">本文をなおす</div>'
+        +(anchored?'<div class="err" style="margin-top:0">文字に紐づいたメモが '+anchored+' 件あります。本文を変えると、その位置がずれることがあります。</div>':'')
+        +'<textarea class="ta" id="edBody"></textarea>'
+        +'<div class="hint" id="edCnt"></div>'
+        +'<div class="row" style="margin-top:8px"><button class="btn pri sm" id="edSave">なおして保存</button>'
+        +'<button class="btn sm" id="edCancel">やめる</button></div><div id="edErr"></div></div>';
+      const ta=host.querySelector('#edBody'); ta.value=d.body||'';
+      const c=function(){ const l=wrapLines(ta.value);
+        host.querySelector('#edCnt').innerHTML='<b>'+chars(ta.value).toLocaleString()+'</b> 字 ／ <b>'
+          +Math.max(1,Math.ceil(l.length/PER_PAGE))+'</b> 頁分'; };
+      ta.addEventListener('input',c); c();
+      host.scrollIntoView({block:'start',behavior:'smooth'});
+      host.querySelector('#edCancel').onclick=function(){ host.innerHTML=''; };
+      host.querySelector('#edSave').onclick=async function(e){
+        const btn=e.currentTarget; btn.disabled=true; btn.textContent='保存しています…';
+        setLoading(true,'保存しています…');
+        try{
+          d.body=normText(ta.value); d.checked=true;
+          await putKind('d',d); localPut('d',d);
+          closeDrawer(); openView(id); toast('編集しました');
+        }catch(err){
+          btn.disabled=false; btn.textContent='なおして保存';
+          host.querySelector('#edErr').innerHTML='<div class="err">'+esc(emsg(err))+'<br>書いた内容は残っています。</div>';
+        }finally{ setLoading(false); }
+      };
+    }    function paintMemoBox(){
+      const host=dw.querySelector('#memoHost');
+      host.innerHTML='<div class="ok" style="margin-top:0;display:flex;gap:10px;align-items:flex-start">'
+        +'<span style="flex:1;white-space:pre-wrap">'+(d.memo?'メモ：'+esc(d.memo):'メモはまだありません。感想や反省をあとから書けます。')+'</span>'
+        +'<button class="btn sm" data-memoedit="1">'+(d.memo?'なおす':'書く')+'</button></div>';
+      host.querySelector('[data-memoedit]').onclick=editMemo;
+    }
+    function editMemo(){
+      const host=dw.querySelector('#memoHost');
+      host.innerHTML='<div style="border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:14px">'
+        +'<div style="font-size:11px;letter-spacing:.1em;color:var(--muted);font-weight:600;margin-bottom:6px">メモ（感想・反省）</div>'
+        +'<textarea class="ta short" id="mmBody" placeholder="例：設問3は時間切れ。強盗の機会性で迷った。"></textarea>'
+        +'<div class="row" style="margin-top:8px"><button class="btn pri sm" id="mmSave">保存</button>'
+        +'<button class="btn sm" id="mmCancel">やめる</button></div><div id="mmErr"></div></div>';
+      const ta=host.querySelector('#mmBody'); ta.value=d.memo||'';
+      try{ ta.focus(); }catch(e){}
+      host.querySelector('#mmCancel').onclick=paintMemoBox;
+      host.querySelector('#mmSave').onclick=async function(e){
+        const btn=e.currentTarget; btn.disabled=true; btn.textContent='保存しています…';
+        try{
+          d.memo=ta.value.trim();
+          await putKind('d',d); localPut('d',d);
+          function paintInfoBox(){
+      const h=dw.querySelector('#infoHost');
+      h.innerHTML='<div class="row" style="margin:0 0 12px">'
+        +'<button class="btn sm" id="infoEdit">年度・試験・科目・書いた日をなおす</button>'
+        +'<button class="btn sm" id="cmWord">📝 コメント付きWordを読み込む</button>'
+        +'<input type="file" id="cmFile" accept=".docx" style="display:none"></div><div id="cmMsg"></div>';
+      h.querySelector('#infoEdit').onclick=editInfo;
+      h.querySelector('#cmWord').onclick=()=>h.querySelector('#cmFile').click();
+      h.querySelector('#cmFile').onchange=async function(ev){
+        const f=ev.target.files[0]; if(!f) return;
+        const msg=h.querySelector('#cmMsg');
+        msg.innerHTML='<div class="ok">Wordを読んでいます…</div>';
+        setLoading(true,'Wordを読んでいます…');
+        try{
+          const r=await readDocx(f);
+          const cms=r.comments||[];
+          if(!cms.length){ msg.innerHTML='<div class="err">このWordにコメントは入っていませんでした。</div>'; return; }
+          const flat=wrapLines(d.body).join('');
+          const hit=cms.filter(c=>findAnchor(flat,c.quote)).length;
+          msg.innerHTML='<div class="ok">コメントが <b>'+cms.length+'</b> 件見つかりました（いまの本文に結びつくもの <b>'+hit+'</b> 件）。'
+            +(hit===0?'<br>本文が違うようです。このまま取り込むと、すべて答案全体へのメモになります。':'')
+            +(hit<cms.length&&hit>0?'<br>結びつかなかった '+(cms.length-hit)+' 件は、答案全体へのメモになります。':'')
+            +'<div class="row" style="margin-top:8px"><button class="btn pri sm" id="cmGo">取り込む</button>'
+            +'<button class="btn sm" id="cmNo">やめる</button></div></div>';
+          msg.querySelector('#cmNo').onclick=function(){ msg.innerHTML=''; };
+          msg.querySelector('#cmGo').onclick=async function(e2){
+            const btn=e2.currentTarget; btn.disabled=true; btn.textContent='取り込んでいます…';
+            const keep=comments.slice();
+            cms.forEach(function(c){
+              const a=findAnchor(flat,c.quote);
+              const m={id:uid(),draftId:id,body:c.body,at:new Date().toISOString(),word:true};
+              if(a){ m.s=a.s; m.e=a.e; m.quote=flat.slice(a.s,a.e).slice(0,60); }
+              comments.push(m);
+            });
+            try{
+              await putKind('c',comments[comments.length-1]);
+              closeDrawer(); openView(id); toast('コメント '+cms.length+' 件を取り込みました');
+            }catch(err){
+              comments=keep; btn.disabled=false; btn.textContent='取り込む';
+              msg.innerHTML='<div class="err">'+esc(emsg(err))+'</div>';
+            }
+          };
+        }catch(e){ msg.innerHTML='<div class="err">このWordは読めませんでした（'+esc(emsg(e))+'）</div>'; }
+        finally{ setLoading(false); }
+      };
+    }
+    function editInfo(){
+      const h=dw.querySelector('#infoHost');
+      const opt=(arr,cur)=>'<option value="">— 選ぶ —</option>'+arr.map(a=>'<option'+(a===cur?' selected':'')+'>'+a+'</option>').join('');
+      h.innerHTML='<div style="border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:14px">'
+        +'<div class="grid3">'
+        +'<div class="fld"><label>年度</label><select class="fin2" id="i_year">'+opt(YEARS,d.year)+'</select></div>'
+        +'<div class="fld"><label>試験</label><select class="fin2" id="i_exam">'+opt(EXAMS,fixExam(d.exam))+'</select></div>'
+        +'<div class="fld"><label>科目</label><select class="fin2" id="i_subject">'+opt(SUBJECTS,d.subject)+'</select></div></div>'
+        +'<div class="fld"><label>書いた日<span class="opt">カレンダーに出ます</span></label>'
+        +'<input class="fin2" type="date" id="i_written" value="'+esc(d.writtenDate||'')+'"></div>'
+        +'<div class="fld"><label>自己評価</label><div class="rate" id="i_rate"></div></div>'
+        +'<div class="row"><button class="btn pri sm" id="iSave">保存</button>'
+        +'<button class="btn sm" id="iCancel">やめる</button></div><div id="iErr"></div></div>';
+      let iRate=d.rate||0;
+      wireRate(h.querySelector('#i_rate'),()=>iRate,v=>{iRate=v;});
+      h.querySelector('#iCancel').onclick=paintInfoBox;
+      h.querySelector('#iSave').onclick=async function(e){
+        const btn=e.currentTarget; btn.disabled=true; btn.textContent='保存しています…';
+        const bk={year:d.year,exam:d.exam,subject:d.subject,writtenDate:d.writtenDate};
+        try{
+          d.year=h.querySelector('#i_year').value;
+          d.exam=h.querySelector('#i_exam').value;
+          d.subject=h.querySelector('#i_subject').value;
+          d.writtenDate=h.querySelector('#i_written').value;
+          d.rate=iRate;
+          await putKind('d',d); localPut('d',d);
+          closeDrawer(); openView(id); toast('編集しました');
+        }catch(err){
+          d.year=bk.year; d.exam=bk.exam; d.subject=bk.subject; d.writtenDate=bk.writtenDate;
+          btn.disabled=false; btn.textContent='保存';
+          h.querySelector('#iErr').innerHTML='<div class="err">'+esc(emsg(err))+'</div>';
+        }
+      };
+    }
+    paintInfoBox();
+    paintMemoBox(); toast('メモを保存しました');
+        }catch(err){
+          btn.disabled=false; btn.textContent='保存';
+          host.querySelector('#mmErr').innerHTML='<div class="err">'+esc(emsg(err))+'<br>書いた内容は残っています。</div>';
+        }
+      };
+    }
+    function paintInfoBox(){
+      const h=dw.querySelector('#infoHost');
+      h.innerHTML='<div class="row" style="margin:0 0 12px">'
+        +'<button class="btn sm" id="infoEdit">年度・試験・科目・書いた日をなおす</button>'
+        +'<button class="btn sm" id="cmWord">📝 コメント付きWordを読み込む</button>'
+        +'<input type="file" id="cmFile" accept=".docx" style="display:none"></div><div id="cmMsg"></div>';
+      h.querySelector('#infoEdit').onclick=editInfo;
+      h.querySelector('#cmWord').onclick=()=>h.querySelector('#cmFile').click();
+      h.querySelector('#cmFile').onchange=async function(ev){
+        const f=ev.target.files[0]; if(!f) return;
+        const msg=h.querySelector('#cmMsg');
+        msg.innerHTML='<div class="ok">Wordを読んでいます…</div>';
+        setLoading(true,'Wordを読んでいます…');
+        try{
+          const r=await readDocx(f);
+          const cms=r.comments||[];
+          if(!cms.length){ msg.innerHTML='<div class="err">このWordにコメントは入っていませんでした。</div>'; return; }
+          const flat=wrapLines(d.body).join('');
+          const hit=cms.filter(c=>findAnchor(flat,c.quote)).length;
+          msg.innerHTML='<div class="ok">コメントが <b>'+cms.length+'</b> 件見つかりました（いまの本文に結びつくもの <b>'+hit+'</b> 件）。'
+            +(hit===0?'<br>本文が違うようです。このまま取り込むと、すべて答案全体へのメモになります。':'')
+            +(hit<cms.length&&hit>0?'<br>結びつかなかった '+(cms.length-hit)+' 件は、答案全体へのメモになります。':'')
+            +'<div class="row" style="margin-top:8px"><button class="btn pri sm" id="cmGo">取り込む</button>'
+            +'<button class="btn sm" id="cmNo">やめる</button></div></div>';
+          msg.querySelector('#cmNo').onclick=function(){ msg.innerHTML=''; };
+          msg.querySelector('#cmGo').onclick=async function(e2){
+            const btn=e2.currentTarget; btn.disabled=true; btn.textContent='取り込んでいます…';
+            const keep=comments.slice();
+            cms.forEach(function(c){
+              const a=findAnchor(flat,c.quote);
+              const m={id:uid(),draftId:id,body:c.body,at:new Date().toISOString(),word:true};
+              if(a){ m.s=a.s; m.e=a.e; m.quote=flat.slice(a.s,a.e).slice(0,60); }
+              comments.push(m);
+            });
+            try{
+              await putKind('c',comments[comments.length-1]);
+              closeDrawer(); openView(id); toast('コメント '+cms.length+' 件を取り込みました');
+            }catch(err){
+              comments=keep; btn.disabled=false; btn.textContent='取り込む';
+              msg.innerHTML='<div class="err">'+esc(emsg(err))+'</div>';
+            }
+          };
+        }catch(e){ msg.innerHTML='<div class="err">このWordは読めませんでした（'+esc(emsg(e))+'）</div>'; }
+        finally{ setLoading(false); }
+      };
+    }
+    function editInfo(){
+      const h=dw.querySelector('#infoHost');
+      const opt=(arr,cur)=>'<option value="">— 選ぶ —</option>'+arr.map(a=>'<option'+(a===cur?' selected':'')+'>'+a+'</option>').join('');
+      h.innerHTML='<div style="border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:13px 14px;margin-bottom:14px">'
+        +'<div class="grid3">'
+        +'<div class="fld"><label>年度</label><select class="fin2" id="i_year">'+opt(YEARS,d.year)+'</select></div>'
+        +'<div class="fld"><label>試験</label><select class="fin2" id="i_exam">'+opt(EXAMS,fixExam(d.exam))+'</select></div>'
+        +'<div class="fld"><label>科目</label><select class="fin2" id="i_subject">'+opt(SUBJECTS,d.subject)+'</select></div></div>'
+        +'<div class="fld"><label>書いた日<span class="opt">カレンダーに出ます</span></label>'
+        +'<input class="fin2" type="date" id="i_written" value="'+esc(d.writtenDate||'')+'"></div>'
+        +'<div class="fld"><label>自己評価</label><div class="rate" id="i_rate"></div></div>'
+        +'<div class="row"><button class="btn pri sm" id="iSave">保存</button>'
+        +'<button class="btn sm" id="iCancel">やめる</button></div><div id="iErr"></div></div>';
+      let iRate=d.rate||0;
+      wireRate(h.querySelector('#i_rate'),()=>iRate,v=>{iRate=v;});
+      h.querySelector('#iCancel').onclick=paintInfoBox;
+      h.querySelector('#iSave').onclick=async function(e){
+        const btn=e.currentTarget; btn.disabled=true; btn.textContent='保存しています…';
+        const bk={year:d.year,exam:d.exam,subject:d.subject,writtenDate:d.writtenDate};
+        try{
+          d.year=h.querySelector('#i_year').value;
+          d.exam=h.querySelector('#i_exam').value;
+          d.subject=h.querySelector('#i_subject').value;
+          d.writtenDate=h.querySelector('#i_written').value;
+          d.rate=iRate;
+          await putKind('d',d); localPut('d',d);
+          closeDrawer(); openView(id); toast('編集しました');
+        }catch(err){
+          d.year=bk.year; d.exam=bk.exam; d.subject=bk.subject; d.writtenDate=bk.writtenDate;
+          btn.disabled=false; btn.textContent='保存';
+          h.querySelector('#iErr').innerHTML='<div class="err">'+esc(emsg(err))+'</div>';
+        }
+      };
+    }
+    paintInfoBox();
+    paintMemoBox();
+    paintScan();
+
+    function myComments(){ return comments.filter(c=>c.draftId===id); }
+    function rangeOf(c){
+      if(c.s!==undefined && c.s!==null && c.e>c.s) return {id:c.id,s:c.s,e:c.e};
+      if(c.line!==undefined && c.line!==null && ls[c.line]!==undefined)
+        return {id:c.id,s:prefix[c.line],e:prefix[c.line]+ls[c.line].length};
+      return null;
+    }
+    function ranges(){ return myComments().map(rangeOf).filter(Boolean); }
+
+    function drawSheet(){
+      const rg=ranges();
+      let re=null;
+      if(curQ){ try{ re=new RegExp(curQ.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'); }catch(e){} }
+      let lastLine=ls.length; while(lastLine>1 && !ls[lastLine-1]) lastLine--;
+      const pages=Math.max(1,Math.ceil(lastLine/PER_PAGE));
+      let html='';
+      for(let p=0;p<pages;p++){
+        let rows='';
+        for(let k=0;k<PER_PAGE;k++){
+          const i=p*PER_PAGE+k;
+          if(i>=ls.length) break;
+          rows+='<li data-i="'+i+'" data-a="'+prefix[i]+'"><span class="ln">'+(k+1)+'</span>'
+               +'<span class="tx">'+segHTML(ls[i],prefix[i],rg,re,sel)+'</span></li>';
+        }
+        html+='<div class="pagecol"><div class="pghd">'+(p+1)+'頁目</div><ul class="sheet">'+rows+'</ul></div>';
+      }
+      html='<div class="pages">'+html+'</div><div class="gapcol"></div>'
+          +'<div class="memocol"></div><svg class="conn"></svg>';
+      pane.innerHTML=html;
+      const pgEl=pane.querySelector('.pages');
+      if(pgEl) pgEl.style.gridTemplateColumns='repeat('+Math.min(2,pages)+',max-content)';
+
+      pane.querySelectorAll('.cm').forEach(function(el){
+        el.onmousedown=function(ev){ ev.stopPropagation(); };
+        el.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); focusMemo(el.dataset.cid); };
+      });
+    }
+    const pageOfLine=i=>Math.floor(i/PER_PAGE);
+    function closestLi(node){
+      let n=node;
+      while(n && n!==sheetcol){ if(n.nodeType===1 && n.tagName==='LI') return n; n=n.parentNode; }
+      return null;
+    }
+    function absOf(node,offset){
+      const li=closestLi(node); if(!li) return null;
+      const tx=li.querySelector('.tx'); if(!tx) return null;
+      if(node===li || node===tx) return Number(li.dataset.a);
+      let acc=0, done=false;
+      (function walk(nd){
+        if(done) return;
+        if(nd.nodeType===3){ if(nd===node){ acc+=offset; done=true; } else acc+=nd.nodeValue.length; return; }
+        for(let c=nd.firstChild;c;c=c.nextSibling){ walk(c); if(done) return; }
+      })(tx);
+      return Number(li.dataset.a)+acc;
+    }
+    function hidePop(){ const p=pane.querySelector('.selpop'); if(p) p.remove(); }
+    async function addMemo(body,withSel){
+      const rec={id:uid(),draftId:id,body:body,at:new Date().toISOString()};
+      if(withSel&&sel){ rec.s=sel.s; rec.e=sel.e; rec.quote=sel.quote.slice(0,60); rec.line=lineOfAbs(sel.s); }
+      await putKind('c',rec);
+      localPut('c',rec);
+    }
+    function showPop(){
+      hidePop();
+      if(!sel) return;
+      const spans=sheetcol.querySelectorAll('.sel');
+      if(!spans.length) return;
+      const last=spans[spans.length-1];
+      const pr=pane.getBoundingClientRect(), r=last.getBoundingClientRect();
+      const el=document.createElement('div');
+      el.className='selpop';
+      el.innerHTML='<div class="ph"><b style="font-weight:600">'+esc(label(lineOfAbs(sel.s)))+'</b> にメモ</div>'
+        +'<div class="pq">「'+esc(sel.quote.slice(0,34))+(sel.quote.length>34?'…':'')+'」</div>'
+        +'<textarea class="ta short" id="popBody" placeholder="ここにひとこと（Ctrl+Enterでも付けられます）"></textarea>'
+        +'<div class="row" style="margin-top:7px"><button class="btn pri sm" id="popSave">つける</button>'
+        +'<button class="btn sm" id="popCancel">やめる</button></div><div id="popErr"></div>';
+      pane.appendChild(el);
+      const top=r.bottom-pr.top+8;
+      const maxL=Math.max(0,pane.clientWidth-el.offsetWidth-6);
+      el.style.top=top+'px';
+      el.style.left=Math.max(0,Math.min(r.left-pr.left,maxL))+'px';
+      const ta=el.querySelector('#popBody');
+      el.addEventListener('mouseup',function(ev){ ev.stopPropagation(); });
+      setTimeout(function(){ ta.focus(); },0);
+      async function save(){
+        const body=ta.value.trim();
+        const err=el.querySelector('#popErr');
+        if(!body){ err.innerHTML='<div class="err" style="margin:8px 0 0">ひとこと書いてください。</div>'; ta.focus(); return; }
+        const btn=el.querySelector('#popSave'); btn.disabled=true; btn.textContent='つけています…';
+        try{
+          await addMemo(body,true);
+          sel=null; hidePop(); paintSel(); drawSheet(); paintMemos(); toast('メモを付けました');
+        }catch(er){
+          btn.disabled=false; btn.textContent='つける';
+          err.innerHTML='<div class="err" style="margin:8px 0 0">'+esc(emsg(er))+'<br>書いた内容は残っています。もう一度押してください。</div>';
+        }
+      }
+      el.querySelector('#popSave').onclick=save;
+      el.querySelector('#popCancel').onclick=function(){ sel=null; hidePop(); paintSel(); drawSheet(); layout(); };
+      ta.addEventListener('keydown',function(e){
+        if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){ e.preventDefault(); save(); }
+        if(e.key==='Escape'){ e.stopPropagation(); sel=null; hidePop(); paintSel(); drawSheet(); layout(); }
+      });
+    }
+    function setSel(a,b){
+      if(b<=a){ sel=null; } else { sel={s:a,e:b,quote:flat.slice(a,b)}; }
+      paintSel(); drawSheet(); paintMemos(); showPop();
+    }
+    function readSelection(){
+      const w=window.getSelection();
+      if(!w || w.rangeCount===0) return;
+      const r=w.getRangeAt(0);
+      if(!sheetcol.contains(r.commonAncestorContainer)) return;
+      if(w.isCollapsed){
+        const li=closestLi(r.startContainer); if(!li) return;
+        const i=Number(li.dataset.i);
+        const a=prefix[i], b=a+ls[i].length;
+        if(sel && sel.s===a && sel.e===b) setSel(0,0); else setSel(a,b);
+        return;
+      }
+      const a=absOf(r.startContainer,r.startOffset), b=absOf(r.endContainer,r.endOffset);
+      if(a===null||b===null) return;
+      setSel(Math.min(a,b),Math.max(a,b));
+      w.removeAllRanges();
+    }
+    sheetcol.addEventListener('mouseup',function(){ setTimeout(readSelection,0); });
+
+    function paintSel(){
+      const bar=dw.querySelector('#selbar');
+      if(!sel){ bar.style.display='none'; return; }
+      const i=lineOfAbs(sel.s);
+      bar.style.display='';
+      bar.innerHTML='メモを付ける場所：<b style="color:var(--blush-d)">'+label(i)+'</b>'
+        +'<span style="font-family:var(--mincho);color:var(--ink)">「'+esc(sel.quote.slice(0,40))+(sel.quote.length>40?'…':'')+'」</span>'
+        +'<span>'+sel.quote.length+' 字</span><button class="btn sm" id="selClr">解除</button>';
+      const c=bar.querySelector('#selClr');
+      if(c) c.onclick=function(){ sel=null; hidePop(); paintSel(); drawSheet(); layout(); };
+    }
+
+    function focusMemo(cid){
+      const card=pane.querySelector('.memoCard[data-cid="'+cid+'"]');
+      pane.querySelectorAll('.memoCard').forEach(x=>x.classList.remove('on'));
+      sheetcol.querySelectorAll('.cm').forEach(x=>x.classList.remove('on'));
+      if(card){ card.classList.add('on'); card.scrollIntoView({block:'center',behavior:'smooth'}); }
+      sheetcol.querySelectorAll('.cm[data-cid="'+cid+'"]').forEach(x=>x.classList.add('on'));
+    }
+    function paintMemos(){
+      const list=myComments().slice().sort(function(a,b){
+        const ra=rangeOf(a), rb=rangeOf(b);
+        const pa=ra?ra.s:Infinity, pb=rb?rb.s:Infinity;
+        if(pa!==pb) return pa-pb;
+        return (a.at||'').localeCompare(b.at||'');
+      });
+      const free=list.filter(function(c){ return !rangeOf(c); });
+      const tied=list.filter(function(c){ return !!rangeOf(c); });
+      function cardHTML(c,fixed){
+        const r=rangeOf(c);
+        const i=r?lineOfAbs(r.s):null;
+        return '<div class="memoCard'+(fixed?' fixed':'')+'" data-cid="'+esc(c.id)+'"'+(fixed?' style="position:static;margin-bottom:9px"':'')+'>'
+          +'<div class="memoAnchor">'+(i!==null?label(i):'答案全体へ')+(c.word?'　📝 Word':'')+'</div>'
+          +(c.quote?'<div class="memoQuote">「'+esc(c.quote)+'」</div>':'')
+          +'<div class="cTop"><span class="cWhen">'+esc(fmtWhen(c.at))
+          +' <button class="btn sm" data-edit="'+esc(c.id)+'" style="margin-left:6px">編集</button>'
+          +' <button class="btn sm dgr" data-del="'+esc(c.id)+'" style="margin-left:6px">削除</button></span></div>'
+          +'<div class="cBody">'+esc(c.body)+'</div></div>';
+      }
+      const freeHost=dw.querySelector('#freeMemos');
+      freeHost.innerHTML=free.length
+        ? '<div style="margin-bottom:14px"><div style="font-size:11px;letter-spacing:.1em;color:var(--muted);font-weight:600;margin-bottom:6px">答案全体へのメモ</div>'
+          +free.map(function(c){ return cardHTML(c,true); }).join('')+'</div>'
+        : '';
+      const host=pane.querySelector('.memocol');
+      host.innerHTML=tied.length?tied.map(function(c){ return cardHTML(c,false); }).join('')
+        :'<p class="hint" style="margin:0">まだ本文に紐づいたメモはありません。気になる所をドラッグして選んでから書くと、その文字と線でつながります。</p>';
+      colorMap={};
+      tied.forEach(function(c,i){ colorMap[c.id]=COLORS[i%COLORS.length]; });
+      host.querySelectorAll('.memoCard').forEach(function(card){
+        const col=colorMap[card.dataset.cid]; if(!col) return;
+        card.style.borderLeftColor=col;
+        const a=card.querySelector('.memoAnchor'); if(a) a.style.color=col;
+      });
+      pane.querySelectorAll('.cm').forEach(function(el){
+        const col=colorMap[el.dataset.cid]; if(!col) return;
+        el.style.borderBottomColor=col; el.style.background=col+'1f';
+      });
+
+      [freeHost,pane].forEach(function(scope){
+      scope.querySelectorAll('[data-edit]').forEach(function(b){
+        b.onclick=function(ev){
+          ev.stopPropagation();
+          const c=comments.find(x=>x.id===b.dataset.edit); if(!c) return;
+          const card=b.closest('.memoCard'); if(!card) return;
+          const body=card.querySelector('.cBody'); if(!body) return;
+          if(card.dataset.editing==='1') return;
+          card.dataset.editing='1';
+          const old=c.body;
+          body.innerHTML='<textarea class="ta short" style="margin:0"></textarea>'
+            +'<div class="row" style="margin-top:6px"><button class="btn pri sm" data-ok="1">保存</button>'
+            +'<button class="btn sm" data-ng="1">やめる</button></div>';
+          const ta=body.querySelector('textarea'); ta.value=old;
+          try{ ta.focus(); }catch(e){}
+          body.querySelector('[data-ng]').onclick=function(e2){ e2.stopPropagation(); paintMemos(); };
+          body.querySelector('[data-ok]').onclick=async function(e2){
+            e2.stopPropagation();
+            const btn=e2.currentTarget; btn.disabled=true; btn.textContent='保存中…';
+            try{
+              c.body=ta.value.trim()||old;
+              await putKind('c',c); localPut('c',c);
+              paintMemos(); toast('編集しました');
+            }catch(err){ c.body=old; btn.disabled=false; btn.textContent='保存'; toast(emsg(err)); }
+          };
+        };
+      });
+      scope.querySelectorAll('[data-del]').forEach(function(b){
+        b.onclick=async function(ev){
+          ev.stopPropagation();
+          if(b.dataset.a!=='1'){b.dataset.a='1';b.textContent='もう一度';return;}
+          try{ const cid=b.dataset.del; await delKind('c',cid); localDel('c',cid); drawSheet(); paintMemos(); toast('メモを削除しました'); }
+          catch(err){ toast(emsg(err)); }
+        };
+      });
+      });
+      pane.querySelectorAll('.memoCard').forEach(function(card){
+        card.onclick=function(){
+          const cid=card.dataset.cid;
+          pane.querySelectorAll('.memoCard').forEach(x=>x.classList.remove('on'));
+          sheetcol.querySelectorAll('.cm').forEach(x=>x.classList.remove('on'));
+          card.classList.add('on');
+          const targets=sheetcol.querySelectorAll('.cm[data-cid="'+cid+'"]');
+          targets.forEach(x=>x.classList.add('on'));
+          if(targets[0]) targets[0].scrollIntoView({block:'center',behavior:'smooth'});
+        };
+      });
+      layout();
+    }
+    function layout(){
+      const host=pane.querySelector('.memocol'), svg=pane.querySelector('.conn');
+      const pagesEl=pane.querySelector('.pages');
+      if(!host||!svg||!pagesEl) return;
+      const cards=Array.prototype.slice.call(host.querySelectorAll('.memoCard'));
+      if(window.innerWidth<1100){
+        cards.forEach(c=>c.style.top=''); host.style.height=''; svg.innerHTML=''; return;
+      }
+      const pr=pane.getBoundingClientRect();
+      const cols=Array.prototype.slice.call(pane.querySelectorAll('.pagecol')).map(c=>c.getBoundingClientRect());
+      let next=0; const spots=[];
+      cards.forEach(function(card,idx){
+        const cid=card.dataset.cid;
+        const t=pane.querySelector('.cm[data-cid="'+cid+'"]');
+        let want=0, y=null, pg=0;
+        if(t){
+          const r=t.getBoundingClientRect();
+          y=r.top-pr.top+r.height/2; want=r.top-pr.top-6;
+          for(let i=0;i<cols.length;i++){ if(r.left>=cols[i].left-2 && r.left<=cols[i].right+2){ pg=i; break; } }
+        }
+        const top=Math.max(want,next);
+        card.style.top=top+'px';
+        next=top+card.offsetHeight+10;
+        spots.push({y:y,top:top,pg:pg,i:idx,cid:cid});
+      });
+      host.style.height=(next+10)+'px';
+      const mR=host.getBoundingClientRect();
+      const xEnd=mR.left-pr.left;
+      let g='';
+      spots.forEach(function(sp){
+        if(sp.y===null||!cols.length) return;
+        const c=colorMap[sp.cid]||'#C86E7C', y2=sp.top+14;
+        const r=cols[sp.pg];
+        const lane=r.right-pr.left+4+(sp.i%4)*3;
+        if(sp.pg%2===1 || sp.pg===cols.length-1){
+          const mid=lane+(xEnd-lane)/2;
+          g+='<path d="M'+lane+','+sp.y+' L'+mid+','+sp.y+' L'+mid+','+y2+' L'+xEnd+','+y2+'" fill="none" stroke="'+c+'" stroke-width="1.3" opacity=".75"/>';
+        }else{
+          const up=(sp.y-(r.top-pr.top))<(r.height/2);
+          const rail=up ? (r.top-pr.top+4+(sp.i%4)*3) : (r.bottom-pr.top-4-(sp.i%4)*3);
+          g+='<path d="M'+lane+','+sp.y+' L'+lane+','+rail+' L'+(xEnd-12)+','+rail+' L'+(xEnd-12)+','+y2+' L'+xEnd+','+y2+'" fill="none" stroke="'+c+'" stroke-width="1.3" opacity=".75"/>';
+        }
+        g+='<circle cx="'+lane+'" cy="'+sp.y+'" r="2.6" fill="'+c+'"/>';
+      });
+      svg.setAttribute('width',pr.width); svg.setAttribute('height',pane.scrollHeight);
+      svg.innerHTML=g;
+    }
+    window.addEventListener('resize',layout);
+
+    drawSheet(); paintMemos();
+
+    dw.querySelector('#rq').oninput=function(e){ curQ=e.target.value; drawSheet(); layout(); };
+    dw.querySelector('#bCp').onclick=async function(){try{await navigator.clipboard.writeText(normText(d.body));toast('コピーしました');}catch(e){toast('コピーできませんでした');}};
+    dw.querySelector('#bDel').onclick=async function(e){
+      const b=e.currentTarget;
+      if(b.dataset.a!=='1'){b.dataset.a='1';b.textContent='もう一度押すと削除';return;}
+      b.disabled=true;
+      try{
+        for(const c of myComments()){ try{ await delKind('c',c.id); }catch(err){} }
+        await delFile(id,'prb'); await delFile(id,'shu');
+        for(let i=1;i<=(d.pageCount||0);i++){ try{ await delFile(id,'p'+i); }catch(err){} }
+        await delKind('d',id); closeDrawer(); await loadAll(); toast('削除しました');
+      }catch(err){ b.disabled=false; b.textContent='削除'; toast(emsg(err)); }
+    };
+    dw.querySelector('#cSend').onclick=async function(e){
+      const body=dw.querySelector('#cBody2').value.trim();
+      const err=dw.querySelector('#cErr');
+      if(!body){ err.innerHTML='<div class="err">メモが空です。ひとこと書いてください。</div>'; return; }
+      const btn=e.currentTarget; btn.disabled=true; btn.textContent='つけています…';
+      try{
+        await addMemo(body,false);
+        dw.querySelector('#cBody2').value=''; err.innerHTML='';
+        drawSheet(); paintMemos(); toast('メモを付けました');
+      }catch(er){
+        err.innerHTML='<div class="err">'+esc(emsg(er))+'<br>書いた内容は残っています。もう一度押してください。</div>';
+      }finally{ btn.disabled=false; btn.textContent='全体にメモを付ける'; }
+    };
+  }
+
+  /* ============ 笹をおく ============ */
+  function openUpload(){
+    const opt=arr=>'<option value="">— 選ぶ —</option>'+arr.map(a=>'<option>'+a+'</option>').join('');
+    const html='<div class="drop" id="drop">'+panda(40)
+      +'<p>Word（.docx）・PDF・テキスト（.txt / .md）をここに落とすか</p>'
+      +'<button class="btn" id="bPick">ファイルを選ぶ</button>'
+      +'<input type="file" id="file" accept=".docx,.pdf,.txt,.md,text/plain,application/pdf" style="display:none">'
+      +'<div class="hint" id="fname"></div></div>'
+      +'<div class="hint">ファイルがなくても、本文を貼り付けるだけで置けます。PDFは文字だけを取り出します。</div>'
+      +'<div id="upmsg"></div><div id="scanBox"></div>'
+      +'<div class="grid3" style="margin-top:16px">'
+      +'<div class="fld"><label>年度<span class="req">必須</span></label><select class="fin2" id="u_year">'+opt(YEARS)+'</select></div>'
+      +'<div class="fld"><label>試験<span class="req">必須</span></label><select class="fin2" id="u_exam">'+opt(EXAMS)+'</select></div>'
+      +'<div class="fld"><label>科目<span class="req">必須</span></label><select class="fin2" id="u_subject">'+opt(SUBJECTS)+'</select></div></div>'
+      +'<div class="grid2">'
+      +'<div class="fld"><label>書いた日<span class="opt">笹ごよみに出ます</span></label><input class="fin2" type="date" id="u_written"></div>'
+      +'<div class="fld"><label>問題を添付<span class="opt">任意</span></label>'
+      +'<button class="btn" id="bPrb" style="width:100%">問題のファイルを選ぶ（PDF・画像・テキスト）</button>'
+      +'<input type="file" id="prb" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.md" style="display:none">'
+      +'<div class="hint" id="prbname">まだ選んでいません</div></div></div>'
+      +'<div class="fld"><label>出題趣旨・評価のポイントを添付<span class="opt">任意</span></label>'
+      +'<button class="btn" id="bShu" style="width:100%">出題趣旨のファイルを選ぶ（PDF・画像・テキスト）</button>'
+      +'<input type="file" id="shu" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.md" style="display:none">'
+      +'<div class="hint" id="shuname">まだ選んでいません</div></div>'
+      +'<div class="fld"><label>自己評価<span class="opt">任意</span></label><div class="rate" id="u_rate"></div></div>'
+      +'<div class="fld"><label>メモ<span class="opt">任意</span></label><textarea class="ta short" id="u_memo" placeholder="例：設問3は時間切れ。強盗の機会性で迷った。"></textarea></div>'
+      +'<div class="fld"><label>答案本文<span class="req">必須</span></label><textarea class="ta" id="u_body"></textarea><div class="hint" id="u_cnt"></div></div>'
+      +'<div class="row"><button class="btn pri" id="bSave">保存する</button><button class="btn" id="bCancel">やめる</button></div>';
+    const dw=drawer('笹をおく',html);
+    const fileEl=dw.querySelector('#file'), bodyEl=dw.querySelector('#u_body');
+    let prbFile=null, shuFile=null, scanPages=null, didOCR=false, docxCms=[];
+    dw.querySelector('#u_written').value=ymd(new Date());
+    let uRate=0;
+    wireRate(dw.querySelector('#u_rate'),()=>uRate,v=>{uRate=v;});
+
+    const cnt=()=>{
+      const t=bodyEl.value, ls=wrapLines(t);
+      dw.querySelector('#u_cnt').innerHTML='<b>'+chars(t).toLocaleString()+'</b> 字 ／ <b>'+ls.length+'</b> 行 ／ 答案用紙で <b>'
+        +Math.max(1,Math.ceil(ls.length/PER_PAGE))+'</b> 頁分（必須科目は8頁・5,520字、選択科目は4頁・2,760字が上限）';
+    };
+    bodyEl.addEventListener('input',cnt); cnt();
+    const upmsg=h=>dw.querySelector('#upmsg').innerHTML=h;
+
+    function renderScan(){
+      const box=dw.querySelector('#scanBox');
+      if(!scanPages||!scanPages.length){ box.innerHTML=''; return; }
+      const kb=Math.round(scanPages.reduce((a,x)=>a+x.data.length,0)*0.75/1024);
+      box.innerHTML='<div class="att" style="margin-top:12px"><div class="attHd">'
+        +'<span>📷</span><b style="font-weight:600">手書きの原本</b>'
+        +'<span class="nm">'+scanPages.length+'ページ（およそ '+kb+' KB）</span>'
+        +'<button class="btn sm" id="scPrev">見る</button>'
+        +'<button class="btn pri sm" id="scOcr">Claudeに文字起こしさせる</button></div>'
+        +'<div class="attBody" id="scBody" style="display:none"></div></div>'
+        +'<div class="hint">文字起こしはClaudeの読み取りです。<b>読み違いが混じります。</b>'
+        +'原本と見くらべて直してから使ってください（あとからでも直せます）。</div>';
+      box.querySelector('#scPrev').onclick=async function(){
+        const b=dw.querySelector('#scBody'), btn=box.querySelector('#scPrev');
+        if(b.style.display!=='none'){ b.style.display='none'; btn.textContent='見る'; return; }
+        b.style.display=''; btn.textContent='とじる';
+        b.innerHTML=scanPages.map(x=>'<img alt="原本" src="data:image/jpeg;base64,'+x.data+'">').join('');
+      };
+      box.querySelector('#scOcr').onclick=async function(e){
+        const btn=e.currentTarget; btn.disabled=true; btn.textContent='読んでいます…';
+        setLoading(true,'文字起こしをしています…');
+        try{
+          const txt=await transcribeAll(scanPages);
+          bodyEl.value=normText(txt); cnt(); didOCR=true;
+          upmsg('<div class="err">文字起こしの<b>下書き</b>ができました。読み違いが混じります。'
+            +'原本と見くらべて、この場で直してから保存してください。</div>');
+          bodyEl.scrollIntoView({block:'center',behavior:'smooth'});
+        }catch(err){
+          upmsg('<div class="err">'+esc(emsg(err))+'<br>原本の画像はそのまま保存できます。本文はあとから足せます。</div>');
+        }finally{ setLoading(false); btn.disabled=false; btn.textContent='もう一度やる'; }
+      };
+    }
+
+    async function readFile(f){
+      dw.querySelector('#fname').textContent=f.name; dw.dataset.filename=f.name;
+      const nm=f.name.toLowerCase();
+      if(nm.endsWith('.docx')){
+        setLoading(true,'Wordを読んでいます…');
+        docxCms=[];
+        try{
+          const r=await readDocx(f);
+          bodyEl.value=normText(r.text); cnt();
+          docxCms=r.comments||[];
+          const fb=wrapLines(normText(r.text)).join(''); let n=0; docxCms.forEach(c=>{ if(findAnchor(fb,c.quote)) n++; });
+          upmsg('<div class="ok">'+esc(f.name)+' を読み込みました。'
+            +(docxCms.length
+              ? '<br><b>コメントが '+docxCms.length+' 件</b>見つかりました（本文に結びつくもの '+n+' 件）。'
+                +'<label style="display:block;margin-top:7px"><input type="checkbox" id="u_cmok" checked> このコメントをメモとして取り込む</label>'
+              : '<br>コメントは入っていませんでした。')
+            +'</div>');
+        }catch(e){
+          try{
+            if(!window.mammoth) throw e;
+            const res=await window.mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()});
+            bodyEl.value=(res.value||'').trim(); cnt();
+            upmsg('<div class="ok">'+esc(f.name)+' の本文を読み込みました。コメントは取り出せませんでした。</div>');
+          }catch(e2){ upmsg('<div class="err">このWordファイルは読めませんでした（'+esc(emsg(e))+'）。本文を貼り付けてください。</div>'); }
+        }finally{ setLoading(false); }
+      }else if(nm.endsWith('.pdf')){
+        upmsg('<div class="ok">PDFを読んでいます…</div>');
+        setLoading(true,'PDFを読んでいます…');
+        try{
+          const buf=await f.arrayBuffer();
+          const txt=await pdfToText(new Uint8Array(buf.slice(0)));
+          if(txt && txt.replace(/\s/g,'').length>=40){
+            scanPages=null; renderScan();
+            bodyEl.value=txt; cnt();
+            upmsg('<div class="ok">'+esc(f.name)+' から文字を取り出しました。文字数を確かめてください。</div>');
+          }else{
+            setLoadText('ページを画像にしています…');
+            scanPages=await pdfToImages(new Uint8Array(buf.slice(0)),function(i,n){ setLoadText('ページを画像にしています…（'+i+'/'+n+'）'); });
+            renderScan();
+            upmsg('<div class="ok">手書き（画像）の答案として取り込みました。'+scanPages.length+'ページ分の原本を残します。'
+              +'<br>下の「Claudeに文字起こしさせる」を押すと、本文の下書きを作れます。押さずにそのまま置くこともできます。</div>');
+          }
+        }catch(e){ upmsg('<div class="err">このPDFは読めませんでした（'+esc(emsg(e))+'）。本文を貼り付けてください。</div>'); }
+        finally{ setLoading(false); }
+      }else if(nm.endsWith('.doc')){
+        upmsg('<div class="err">古い .doc 形式は読めません。.docx で保存し直すか、本文を貼り付けてください。</div>');
+      }else{
+        try{ bodyEl.value=(await f.text()).trim(); cnt(); upmsg('<div class="ok">'+esc(f.name)+' を読み込みました。</div>'); }
+        catch(e){ upmsg('<div class="err">ファイルを読めませんでした。本文を貼り付けてください。</div>'); }
+      }
+    }
+    dw.querySelector('#bPick').onclick=()=>fileEl.click();
+    fileEl.onchange=e=>{ if(e.target.files[0]) readFile(e.target.files[0]); };
+    const drop=dw.querySelector('#drop');
+    ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('on');}));
+    ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('on');}));
+    drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)readFile(f);});
+
+    dw.querySelector('#bPrb').onclick=()=>dw.querySelector('#prb').click();
+    dw.querySelector('#prb').onchange=async e=>{
+      const f=e.target.files[0]; if(!f) return;
+      if(f.size>MAXFILE){ dw.querySelector('#prbname').textContent='大きすぎます（3.4MBまで）。別のファイルを選んでください。'; prbFile=null; return; }
+      try{ prbFile={name:f.name,type:f.type||'application/octet-stream',data:await toB64(f)};
+        dw.querySelector('#prbname').textContent=f.name+'（'+Math.round(f.size/1024)+' KB）'; }
+      catch(err){ dw.querySelector('#prbname').textContent='読めませんでした'; prbFile=null; }
+    };
+    dw.querySelector('#bShu').onclick=()=>dw.querySelector('#shu').click();
+    dw.querySelector('#shu').onchange=async e=>{
+      const f=e.target.files[0]; if(!f) return;
+      if(f.size>MAXFILE){ dw.querySelector('#shuname').textContent='大きすぎます（3.4MBまで）。別のファイルを選んでください。'; shuFile=null; return; }
+      try{ shuFile={name:f.name,type:f.type||'application/octet-stream',data:await toB64(f)};
+        dw.querySelector('#shuname').textContent=f.name+'（'+Math.round(f.size/1024)+' KB）'; }
+      catch(err){ dw.querySelector('#shuname').textContent='読めませんでした'; shuFile=null; }
+    };
+
+    dw.querySelector('#bCancel').onclick=closeDrawer;
+    dw.querySelector('#bSave').onclick=async e=>{
+      const g=id=>dw.querySelector('#'+id);
+      ['u_year','u_exam','u_subject','u_body'].forEach(k=>g(k).classList.remove('bad'));
+      const miss=[];
+      if(!g('u_year').value){ miss.push('年度'); g('u_year').classList.add('bad'); }
+      if(!g('u_exam').value){ miss.push('試験'); g('u_exam').classList.add('bad'); }
+      if(!g('u_subject').value){ miss.push('科目'); g('u_subject').classList.add('bad'); }
+      if(!g('u_body').value.trim() && !(scanPages&&scanPages.length)){ miss.push('答案本文'); g('u_body').classList.add('bad'); }
+      if(miss.length){ upmsg('<div class="err">'+esc(miss.join('・'))+' が空です。赤くなっている欄を埋めてください。</div>'); return; }
+      const rec={id:uid(),author:AUTHOR,year:g('u_year').value,exam:g('u_exam').value,subject:g('u_subject').value,
+        writtenDate:g('u_written').value||'',memo:g('u_memo').value.trim(),filename:dw.dataset.filename||'',
+        body:normText(g('u_body').value),uploadedAt:new Date().toISOString(),
+        rate:uRate,
+        hasProblem:!!prbFile,problemName:prbFile?prbFile.name:'',
+        hasShushi:!!shuFile,shushiName:shuFile?shuFile.name:'',
+        scan:!!(scanPages&&scanPages.length),pageCount:(scanPages?scanPages.length:0),
+        transcript:didOCR?'claude':'',checked:false};
+      const btn=e.currentTarget; btn.disabled=true; btn.textContent='保存しています…';
+      setLoading(true,'保存しています…');
+      const cmBox=dw.querySelector('#u_cmok');
+      const takeCm=docxCms.length && (!cmBox || cmBox.checked);
+      const cmKeep=comments.slice();
+      let cmN=0;
+      if(takeCm){
+        const flat=wrapLines(rec.body).join('');
+        docxCms.forEach(c=>{
+          const a=findAnchor(flat,c.quote);
+          const m={id:uid(),draftId:rec.id,body:c.body,at:new Date().toISOString(),word:true};
+          if(a){ m.s=a.s; m.e=a.e; m.quote=flat.slice(a.s,a.e).slice(0,60); }
+          comments.push(m); cmN++;
+        });
+      }
+      try{
+        await putKind('d',rec);
+        if(prbFile) try{ await putFile(rec.id,'prb',prbFile); }catch(err){ toast('問題のファイルだけ保存できませんでした'); rec.hasProblem=false; await putKind('d',rec); }
+        if(shuFile) try{ await putFile(rec.id,'shu',shuFile); }catch(err){ toast('出題趣旨のファイルだけ保存できませんでした'); rec.hasShushi=false; await putKind('d',rec); }
+        if(scanPages&&scanPages.length){
+          let ng=0;
+          for(let i=0;i<scanPages.length;i++){
+            setLoadText('原本を保存しています…（'+(i+1)+'/'+scanPages.length+'）');
+            try{ await putFile(rec.id,'p'+(i+1),{name:'p'+(i+1)+'.jpg',type:'image/jpeg',data:scanPages[i].data}); }
+            catch(err){ ng++; }
+          }
+          if(ng){ toast(ng+'ページ分の原本は保存できませんでした'); }
+        }
+        closeDrawer(); await loadAll();
+        toast(cmN?('保存しました（コメント '+cmN+' 件）'):(mode==='memory'?'この画面にだけ置きました':'保存しました'));
+      }catch(err){
+        comments=cmKeep;
+        btn.disabled=false; btn.textContent='保存する';
+        upmsg('<div class="err">'+esc(emsg(err))+'<br>入力は消えていません。もう一度「保存する」を押してください。直らないときは「書き出し」で控えを取ってください。</div>');
+      }finally{ setLoading(false); }
+    };
+  }
+
+  /* ============ カレンダー ============ */
+  function autoEvents(){
+    return drafts.filter(d=>d.writtenDate).map(d=>({
+      auto:true,id:'auto_'+d.id,draftId:d.id,date:d.writtenDate,time:'',
+      subject:(d.subject||'')+'（'+(d.year||'')+'）'
+    }));
+  }
+  function dayItems(key){
+    return {manual:events.filter(e=>e.date===key), auto:autoEvents().filter(e=>e.date===key)};
+  }
+  function renderCal(){
+    const y=calCur.getFullYear(), m=calCur.getMonth();
+    $('#calTitle').textContent=y+'年 '+(m+1)+'月';
+    const first=new Date(y,m,1), start=new Date(y,m,1-first.getDay());
+    const today=ymd(new Date());
+    const dows=['日','月','火','水','木','金','土'];
+    let html=dows.map((d,i)=>'<div class="dow'+(i===0?' sun':'')+(i===6?' sat':'')+'">'+d+'</div>').join('');
+    for(let i=0;i<42;i++){
+      const dt=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i);
+      const key=ymd(dt), out=dt.getMonth()!==m, it=dayItems(key);
+      html+='<div class="day'+(out?' out':'')+(dt.getDay()===0?' sun':'')+(dt.getDay()===6?' sat':'')+(key===today?' today':'')+'" data-d="'+key+'">'
+        +'<div class="dnum">'+dt.getDate()+'</div>'
+        +it.auto.map(e=>'<div class="ev auto">🐼 '+esc(e.subject)+'</div>').join('')
+        +it.manual.map(e=>'<div class="ev"'+(e.done?' style="background:var(--bamboo-l);border-left-color:var(--bamboo)"':'')+'>'
+          +(e.done?'🐼 ':'')+'<b>'+esc(e.time||'')+'</b> '+esc(e.subject||'')+'</div>').join('')
+        +'</div>';
+    }
+    $('#cal').innerHTML=html;
+    $('#cal').querySelectorAll('.day').forEach(el=>{ if(!el.classList.contains('out')) el.onclick=()=>openDay(el.dataset.d); });
+  }
+  function openDay(dateStr){
+    const it=dayItems(dateStr);
+    const autoHtml=it.auto.length
+      ? '<h3 class="chd">この日に書いた答案</h3>'+it.auto.map(e=>{
+          const d=drafts.find(x=>x.id===e.draftId)||{};
+          return '<div class="cItem" style="border-left-color:var(--bamboo)"><div class="cTop" style="justify-content:space-between">'
+            +'<span style="font-weight:600;color:var(--bamboo-d)">'+esc((d.year||'')+'　'+(d.exam||'')+'　'+(d.subject||''))+'</span>'
+            +'<button class="btn sm" data-open="'+esc(e.draftId)+'">ひらく</button></div>'
+            +(d.memo?'<div class="cBody">'+esc(d.memo)+'</div>':'')+'</div>';
+        }).join('')
+      : '';
+    const html=autoHtml
+      +'<h3 class="chd">予定</h3><div id="dayList">'+(it.manual.length?it.manual.map(e=>
+        '<div class="cItem" style="border-left-color:'+(e.done?'var(--bamboo)':'#7C9FBA')+'"><div class="cTop" style="justify-content:space-between">'
+        +'<span style="font-weight:600;color:'+(e.done?'var(--bamboo-d)':'#4C6D89')+'">'
+        +(e.done?'🐼 ':'')+esc(e.time||'時間未定')+'　'+esc(e.subject||'')+'</span>'
+        +'<span class="row" style="gap:6px"><button class="btn sm'+(e.done?'':' pri')+'" data-done="'+esc(e.id)+'">'
+        +(e.done?'笹をもどす':'笹をあげる')+'</button>'
+        +'<button class="btn sm dgr" data-del="'+esc(e.id)+'">削除</button></span></div>'
+        +(e.memo?'<div class="cBody">'+esc(e.memo)+'</div>':'')+'</div>').join('')
+      :'<p class="hint" style="margin:0 0 12px">この日の予定はまだありません。</p>')+'</div>'
+      +'<div style="border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px;margin-top:12px">'
+      +'<div class="grid2">'
+      +'<div class="fld"><label>時間<span class="req">必須</span></label><input class="fin2" type="time" id="e_time" value="19:00"></div>'
+      +'<div class="fld"><label>科目<span class="req">必須</span></label><select class="fin2" id="e_subject"><option value="">— 選ぶ —</option>'
+      +'<option>全科目</option>'+SUBJECTS.map(s=>'<option>'+s+'</option>').join('')+'</select></div></div>'
+      +'<div class="fld"><label>メモ</label><textarea class="ta short" id="e_memo" placeholder="例：R5刑事系第1問。前日までに書く。"></textarea></div>'
+      +'<div id="eErr"></div>'
+      +'<button class="btn pri sm" id="eSave">この日に追加</button></div>';
+    const dw=drawer(dateStr.replace(/-/g,'/')+' のできごと',html);
+
+    dw.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{ const t=b.dataset.open; closeDrawer(); openView(t); });
+    dw.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+      if(b.dataset.a!=='1'){b.dataset.a='1';b.textContent='もう一度';return;}
+      try{ const eid=b.dataset.del; await delKind('e',eid); localDel('e',eid); closeDrawer(); openDay(dateStr); toast('削除しました'); }
+      catch(err){ toast(emsg(err)); }
+    });
+    dw.querySelectorAll('[data-done]').forEach(function(b){
+      b.onclick=async function(){
+        const ev=events.find(x=>x.id===b.dataset.done); if(!ev) return;
+        b.disabled=true;
+        try{
+          ev.done=!ev.done;
+          await putKind('e',ev); localPut('e',ev);
+          closeDrawer(); openDay(dateStr);
+          toast(ev.done?'笹をあげました🐼':'笹をもどしました');
+        }catch(err){ b.disabled=false; ev.done=!ev.done; toast(emsg(err)); }
+      };
+    });
+    dw.querySelector('#eSave').onclick=async e=>{
+      const t=dw.querySelector('#e_time').value, s=dw.querySelector('#e_subject').value;
+      const err=dw.querySelector('#eErr');
+      if(!t||!s){ err.innerHTML='<div class="err">時間と科目を入れてください。</div>'; return; }
+      const btn=e.currentTarget; btn.disabled=true; btn.textContent='追加しています…';
+      try{
+        const evrec={id:uid(),date:dateStr,time:t,subject:s,memo:dw.querySelector('#e_memo').value.trim(),at:new Date().toISOString()};
+        await putKind('e',evrec); localPut('e',evrec); closeDrawer(); openDay(dateStr); toast('予定を追加しました');
+      }catch(er){
+        btn.disabled=false; btn.textContent='この日に追加';
+        err.innerHTML='<div class="err">'+esc(emsg(er))+'<br>もう一度押してください。</div>';
+      }
+    };
+  }
+
+  /* ============ 使い方 ============ */
+  function openHelp(){
+    const h3=t=>'<h3 style="font-family:var(--mincho);font-size:16px;border-bottom:1px solid var(--bamboo);padding-bottom:5px;margin-top:22px">'+t+'</h3>';
+    const h='<div class="ok" style="margin-top:0">わかちゃん専用のおへやです。書いた答案・問題・メモ・予定がぜんぶここに残ります。</div>'
+      +h3('0　コメント付きのWord')
+      +'<p style="font-size:13.5px">添削でコメントを入れてもらったWord（.docx）をそのまま置けます。<b>本文とコメントを同時に読み取り、コメントは本文の該当箇所に紐づいたメモとして入ります。</b>コメントが付いていた文字がそのまま引用になるので、どこへの指摘かが一目で分かります。メモの見出しに 📝 Word と出るのが、取り込んだものです。<br>取り込みたくないときは、読み込んだあとのチェックを外してください。<br><b>すでに置いた答案にも、あとから足せます。</b>答案を開いて、いちばん上の「📝 コメント付きWordを読み込む」から選んでください。</p>'
+      +h3('1　笹をおく')
+      +'<p style="font-size:13.5px">右上の「笹をおく」。Word（.docx）・PDF・テキストをそのまま落とせます。PDFは中の文字を取り出して本文に入れます。<b>手書きの紙をスキャンしたPDF</b>は文字が入っていないので、自動でページを画像にして原本として残し、「Claudeに文字起こしさせる」で本文の下書きを作れます。'
+      +'<b>年度・試験・科目・本文</b>は必須です。<b>書いた日</b>を入れると、その日付で笹ごよみに出ます（アップロードした日とは別で構いません）。問題のファイルも同じ画面から添付できます。</p>'
+      +h3('2　読む')
+      +'<p style="font-size:13.5px">カードをクリックすると本文が開きます。<b>本番と同じ1行30字で折り返し、左に行番号</b>が出ます。23行ごとに「○頁目」の区切りが入るので、上限（必須8頁・選択4頁）に収まっているかがその場で分かります。問題を添付してあれば、本文の上の「開く」でPDFや画像を並べて確認できます。手書き原本も同じところから見られます。</p>'
+      +'<div class="err">文字起こしはClaudeが画像を読んだ<b>下書き</b>です。読み違いが必ず混じるので、原本と見くらべ、「本文をなおす」で直してから使ってください。直すと「要見なおし」の印が消えます。分析のもとにする文章は、必ず自分の目を通したものにしてください。</div>'
+      +h3('3　メモをつける')
+      +'<p style="font-size:13.5px">本文を開くと、右半分がメモ欄になります。<b>気になる箇所をドラッグして選ぶと、その場に小さな窓が出てすぐメモを書けます</b>（Ctrl+Enterでも付きます）。行をクリックすればその行全体が対象。書いたメモは右側に並び、本文と線でつながります。答案全体へのメモは、本文の上の「答案全体へのメモ」から書けます。メモをクリックすると本文の該当箇所が光ります。</p>'
+      +h3('4　笹ごよみ')
+      +'<p style="font-size:13.5px">🐼 のついた日は、その日に書いた答案です（書いた日から自動で出ます。クリックすればそのまま開けます）。予定は日付をクリックして、時間と科目を入れれば追加できます。</p>'
+      +h3('5　控えを取る')
+      +'<p style="font-size:13.5px">「書き出し」を押すと、全部のデータがJSONとして枠に出ます。<b>コピーしてメモ帳などに貼り付け、ファイルとして保存してください。</b>この画面では自動ダウンロードが止められるため、この方式にしています。作り直す前に必ず控えを取り、新しい版の「読み込み」に貼り付ければ戻せます。</p>'
+      +'<div class="err">共有リンクを知っている人は誰でも開けます。答案がそのまま読めるので、リンクは自分の手元にとどめてください。</div>';
+    drawer('使い方',h);
+  }
+
+  /* ============ 書き出し・読み込み ============ */
+  async function payload(withFiles){
+    const files={};
+    if(withFiles){
+      for(const d of drafts){
+        if(d.hasProblem){ const f=await getFile(d.id,'prb'); if(f) files[d.id+'_prb']=f; }
+        if(d.hasShushi){ const f=await getFile(d.id,'shu'); if(f) files[d.id+'_shu']=f; }
+        for(let i=1;i<=(d.pageCount||0);i++){ const f=await getFile(d.id,'p'+i); if(f) files[d.id+'_p'+i]=f; }
+      }
+    }
+    return JSON.stringify({app:'わかちゃんのおへや',version:1,exportedAt:new Date().toISOString(),
+      drafts:drafts,comments:comments,events:events,files:files},null,1);
+  }
+  async function openExport(){
+    const html='<div class="ok" style="margin-top:0">この画面ではファイルの自動ダウンロードが止められるため、<b>本文をコピーして自分で保存する方式</b>にしています。枠の中身をすべてコピーし、メモ帳などに貼り付けて「わかちゃんのおへや.json」などの名前で保存してください。</div>'
+      +'<div class="row"><label style="font-size:12.5px"><input type="checkbox" id="withF"> 問題と手書き原本のファイルも含める（とても長くなります）</label></div>'
+      +'<div class="hint" id="expInfo"></div>'
+      +'<textarea class="ta" id="expBox" style="min-height:300px;font-family:var(--mono);font-size:11px" readonly></textarea>'
+      +'<div id="expMsg"></div>'
+      +'<div class="row" style="margin-top:10px"><button class="btn pri" id="bCopyAll">すべてコピー</button>'
+      +'<button class="btn" id="bSel">枠の中を全選択</button></div>';
+    const dw=drawer('書き出し（控えを取る）',html);
+    const box=dw.querySelector('#expBox');
+    const m=h=>dw.querySelector('#expMsg').innerHTML=h;
+    let txt='';
+    async function build(){
+      const wf=dw.querySelector('#withF').checked;
+      box.value='作っています…';
+      setLoading(true,'書き出しを作っています…');
+      try{ txt=await payload(wf); }finally{ setLoading(false); }
+      box.value=txt;
+      dw.querySelector('#expInfo').innerHTML='答案 <b>'+drafts.length+'</b> 通／メモ <b>'+comments.length
+        +'</b> 件／予定 <b>'+events.length+'</b> 件　（'+Math.round(txt.length/1024)+' KB）';
+    }
+    dw.querySelector('#withF').onchange=build;
+    await build();
+    dw.querySelector('#bSel').onclick=()=>{ box.focus(); box.select(); m('<div class="ok">全選択しました。Ctrl+C（Macは⌘+C）でコピーしてください。</div>'); };
+    dw.querySelector('#bCopyAll').onclick=async()=>{
+      try{ await navigator.clipboard.writeText(txt); m('<div class="ok">コピーしました。メモ帳などに貼り付けて保存してください。</div>'); }
+      catch(e){
+        try{ box.focus(); box.select(); const ok=document.execCommand('copy');
+          m(ok?'<div class="ok">コピーしました。</div>':'<div class="err">自動コピーができませんでした。枠の中をクリックし、Ctrl+A → Ctrl+C でコピーしてください。</div>');
+        }catch(e2){ m('<div class="err">自動コピーができませんでした。枠の中をクリックし、Ctrl+A → Ctrl+C でコピーしてください。</div>'); }
+      }
+    };
+  }
+  function openImport(){
+    const html='<div class="ok" style="margin-top:0">書き出したJSONを貼り付けるか、保存したファイルを選んでください。前の版（起案アーカイブ）の控えもそのまま入ります。いまある答案は消えません。同じものを2回入れると重複します。</div>'
+      +'<div class="row" style="margin-bottom:10px"><button class="btn" id="bPickJ">ファイルを選ぶ</button>'
+      +'<input type="file" id="fJ" accept="application/json,.json,.txt" style="display:none">'
+      +'<span class="hint" id="jname" style="margin:0"></span></div>'
+      +'<textarea class="ta" id="impBox" style="min-height:240px;font-family:var(--mono);font-size:11px" placeholder="ここにJSONを貼り付け"></textarea>'
+      +'<div id="impMsg"></div>'
+      +'<div class="row" style="margin-top:10px"><button class="btn pri" id="bDoImp">取り込む</button></div>';
+    const dw=drawer('読み込み（控えを戻す）',html);
+    const box=dw.querySelector('#impBox'), m=h=>dw.querySelector('#impMsg').innerHTML=h;
+    dw.querySelector('#bPickJ').onclick=()=>dw.querySelector('#fJ').click();
+    dw.querySelector('#fJ').onchange=async e=>{
+      const f=e.target.files[0]; if(!f) return;
+      dw.querySelector('#jname').textContent=f.name;
+      try{ box.value=await f.text(); m('<div class="ok">読み込みました。「取り込む」を押してください。</div>'); }
+      catch(err){ m('<div class="err">ファイルを読めませんでした。中身をコピーして枠に貼り付けてください。</div>'); }
+    };
+    dw.querySelector('#bDoImp').onclick=async e=>{
+      const btn=e.currentTarget;
+      let obj;
+      try{ obj=JSON.parse(box.value); }catch(err){ m('<div class="err">JSONとして読めませんでした。貼り付けが途中で切れていないか確かめてください。</div>'); return; }
+      btn.disabled=true; btn.textContent='取り込んでいます…';
+      setLoading(true,'取り込んでいます…');
+      try{
+        const r=await importObj(obj,function(done,total){ m('<div class="ok">取り込んでいます… '+done+' / '+total+'</div>'); });
+        if(r.stopped){
+          m('<div class="err">答案 '+r.n+' 通、メモ '+r.c+' 件、予定 '+r.e+' 件まで入れたところで、'
+            +'保存の受付が一時的に止められました。<br>1〜2分ほど待ってから、同じJSONをもう一度「取り込む」してください。'
+            +'すでに入った分は重複しますので、重複した答案はあとで削除してください。</div>');
+        }else{
+          m('<div class="ok">答案 '+r.n+' 通、メモ '+r.c+' 件、予定 '+r.e+' 件を取り込みました。'+(r.f?'（'+r.f+' 件は保存できませんでした）':'')+'</div>');
+        }
+        await loadAll();
+      }catch(err){ m('<div class="err">'+esc(emsg(err))+'</div>'); }
+      finally{ btn.disabled=false; btn.textContent='取り込む'; }
+    };
+  }
+  async function importObj(obj,onProg){
+    let stopped=false;
+    const paced=async function(fn){
+      if(stopped) throw new Error('stopped');
+      try{ const r=await fn(); await sleep(260); return r; }
+      catch(e){ if(isRateLimited(e)) stopped=true; throw e; }
+    };
+    const res=await importCore(obj,paced,onProg,function(){return stopped;});
+    res.stopped=stopped;
+    return res;
+  }
+  async function importCore(obj,paced,onProg,isStopped){
+    const D=Array.isArray(obj)?obj:(obj.drafts||obj.items||[]);
+    const C=obj.comments||[], E=obj.events||[], F=obj.files||{};
+    let n=0,f=0,cc=0,ee=0; const map={};
+    const total=D.length+ (obj.comments||[]).length + (obj.events||[]).length;
+    let done=0;
+    const tick=function(){ done++; if(onProg) onProg(done,total); };
+    for(const r of D){
+      if(isStopped&&isStopped()) break;
+      if(!r||(!r.body&&!r.pageCount)) continue;
+      const oid=r.id||uid(), nid=uid(); map[oid]=nid;
+      const rec={id:nid,author:AUTHOR,year:r.year||'',exam:r.exam||'',subject:r.subject||'',
+        writtenDate:r.writtenDate||'',memo:r.memo||'',filename:r.filename||'',body:normText(r.body||''),
+        uploadedAt:r.uploadedAt||new Date().toISOString(),
+        hasProblem:false,problemName:'',hasShushi:false,shushiName:'',
+        scan:false,pageCount:0,transcript:r.transcript||'',checked:!!r.checked};
+      try{
+        const pf=F[oid+'_prb'], sf=F[oid+'_shu'];
+        if(pf){ try{ await paced(()=>putFile(nid,'prb',pf)); rec.hasProblem=true; rec.problemName=pf.name||''; }catch(e){ f++; } }
+        if(sf){ try{ await paced(()=>putFile(nid,'shu',sf)); rec.hasShushi=true; rec.shushiName=sf.name||''; }catch(e){ f++; } }
+        for(let i=1;i<=(r.pageCount||0);i++){
+          const g=F[oid+'_p'+i];
+          if(g){ try{ await paced(()=>putFile(nid,'p'+i,g)); rec.scan=true; rec.pageCount=i; }catch(e){ f++; } }
+        }
+        drafts.push(rec); n++; tick();
+      }catch(e){ f++; if(isStopped&&isStopped()) break; }
+    }
+    for(const c of C){ if(isStopped&&isStopped()) break; if(!c||!c.body) continue;
+      try{ comments.push({id:uid(),draftId:map[c.draftId]||c.draftId,body:c.body,
+        s:c.s,e:c.e,quote:c.quote||'',line:c.line,at:c.at||new Date().toISOString()}); cc++; tick(); }catch(e){ f++; } }
+    for(const ev of E){ if(isStopped&&isStopped()) break; if(!ev||!ev.date) continue;
+      try{ events.push({id:uid(),date:ev.date,time:ev.time||'',subject:ev.subject||'',memo:ev.memo||'',at:ev.at||new Date().toISOString()}); ee++; tick(); }catch(e){ f++; } }
+    sortAll();
+    try{ await saveBook(); }catch(e){ f++; throw e; }
+    return {n:n,c:cc,e:ee,f:f};
+  }
+
+  /* ============ 配線 ============ */
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on'); view=t.dataset.v;
+    $('#vList').style.display=view==='list'?'':'none';
+    $('#vCal').style.display=view==='cal'?'':'none';
+    render();
+  });
+  $('#bHelp').onclick=openHelp;
+  $('#bUp').onclick=openUpload;
+  $('#bRefresh').onclick=()=>loadAll();
+  $('#bExp').onclick=openExport;
+  $('#bImp').onclick=openImport;
+  $('#fYear').onchange=e=>{filt.year=e.target.value;page=1;render();};
+  $('#fExam').onchange=e=>{filt.exam=e.target.value;page=1;render();};
+  $('#fSubject').onchange=e=>{filt.subject=e.target.value;page=1;render();};
+  $('#q').oninput=e=>{filt.q=e.target.value;page=1;render();};
+  $('#bClear').onclick=()=>{filt={year:'',exam:'',subject:'',q:''};page=1;$('#q').value='';buildFilters();render();};
+  $('#cPrev').onclick=()=>{calCur=new Date(calCur.getFullYear(),calCur.getMonth()-1,1);renderCal();};
+  $('#cNext').onclick=()=>{calCur=new Date(calCur.getFullYear(),calCur.getMonth()+1,1);renderCal();};
+  $('#cToday').onclick=()=>{calCur=new Date();renderCal();};
+  $('#cAdd').onclick=()=>openDay(ymd(new Date()));
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden || mode==='memory' || document.querySelector('.drw')) return;
+    if(lastSync && (Date.now()-lastSync.getTime())<POLL) return;
+    loadAll(true);
+  });
+
+  /* ===== 保存先の用意：新しいおへやの保存の仕組みに橋をかける ===== */
+  async function ensureStorage(){
+    if(window.storage) return;
+    /* ふつうのウェブサイトとして開いたとき：このブラウザの中（IndexedDB）に保存する */
+    const open=()=>new Promise((res,rej)=>{
+      const r=indexedDB.open('wakachan-oheya',1);
+      r.onupgradeneeded=()=>{ r.result.createObjectStore('kv'); };
+      r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
+    });
+    let db;
+    try{ db=await open(); }catch(e){ return; }
+    const tx=(mode,fn)=>new Promise((res,rej)=>{
+      const t=db.transaction('kv',mode), st=t.objectStore('kv'), q=fn(st);
+      t.oncomplete=()=>res(q&&q.result); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error);
+    });
+    window.__idb=true;
+    try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+    window.storage={
+      get:async k=>{ const v=await tx('readonly',s=>s.get(String(k))); return v==null?null:{key:k,value:v}; },
+      set:async (k,v)=>{ await tx('readwrite',s=>s.put(String(v),String(k))); return true; },
+      delete:async k=>{ await tx('readwrite',s=>s.delete(String(k))); return true; },
+      list:async p=>{ const ks=await tx('readonly',s=>s.getAllKeys()); return {keys:(ks||[]).filter(x=>String(x).indexOf(p)===0)}; }
+    };
+  }
+
+  (async function init(){
+    setLoading(true,'保存先をたしかめています…');
+    try{ await ensureStorage(); await diagnose(); paintStatus(); }finally{ setLoading(false); }
+    await loadAll();
+  })();
+})();
+</script>
+
+</body>
+</html>
