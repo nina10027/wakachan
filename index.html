@@ -343,7 +343,7 @@
     <div class="brand" id="brand">
       <div>
         <h1>わかちゃんのおへや🐼</h1>
-        <small>WAKACHAN'S ROOM 🎋 笹保存庫と笹ごよみ ／ ver.37（11/14）</small>
+        <small>WAKACHAN'S ROOM 🎋 笹保存庫と笹ごよみ ／ ver.38（11/14）</small>
       </div>
     </div>
     <div class="acts">
@@ -406,7 +406,7 @@
   const EXAMS=['予備試験','司法試験','法科大学院入試'];
   const fixExam=v=>v==='ロー入試'?'法科大学院入試':(v||'');
   const YEARS=['R9','R8','R7','R6','R5','R4','R3','R2','R1','H31','H30','H29','H28','H27','H26','H25','H24','H23','旧司法'];
-  const POLL=90000, PER_PAGE=23, MAXFILE=3.4*1024*1024;
+  const POLL=20000, PER_PAGE=23, MAXFILE=3.4*1024*1024;
 
   let mode='memory', shared=true, diag='', lastSync=null, busy=false, view='list';
   let drafts=[], comments=[], events=[], mem={d:[],c:[],e:[]}, memFiles={};
@@ -522,16 +522,17 @@
     const el=$('#status');
     el.className='status'+(mode==='memory'?' bad':(mode==='local'?' warn':''));
     let head;
-    if(mode==='list'||mode==='index') head=window.__idb?'このブラウザの中に保存されています。同じ端末・同じブラウザで開けば、いつでも同じ答案が出てきます。':'ちゃんと保存されています。この画面を開けば、いつでも同じ答案が出てきます。';
+    if(mode==='list'||mode==='index') head=window.__sync?'クラウドに保存されています。MacでもiPhoneでも，ログインすれば同じ答案が出ます。':window.__idb?'このブラウザの中に保存されています。同じ端末・同じブラウザで開けば、いつでも同じ答案が出てきます。':'ちゃんと保存されています。この画面を開けば、いつでも同じ答案が出てきます。';
     else if(mode==='local') head='共有の保存先に届きませんでした。いまはこの端末のこの画面だけに残ります。';
     else head='保存できません。閉じると消えます。必ず「書き出し」で控えを取ってください。';
     const t=lastSync?('最終更新 '+pad(lastSync.getHours())+':'+pad(lastSync.getMinutes())+':'+pad(lastSync.getSeconds())):'未取得';
     el.innerHTML='<div class="top"><span class="dot"></span><span class="grow">'+esc(head)+'</span>'
       +'<span>答案 <span class="num">'+drafts.length+'</span>　メモ <span class="num">'+comments.length+'</span>　予定 <span class="num">'+events.length+'</span></span>'
       +'<span>'+esc(t)+'</span>'
-      +'<button class="btn sm" id="bDiag">詳細</button><button class="btn sm" id="bRe">保存先を再確認</button></div>'
+      +'<button class="btn sm" id="bDiag">詳細</button><button class="btn sm" id="bRe">保存先を再確認</button>'+(window.__sync?'<button class="btn sm" id="bOut">ログアウト</button>':'')+'</div>'
       +'<div class="detail" id="diagBox" style="display:none">'+esc(diag||'（追加情報なし）')+'</div>';
     $('#bDiag').onclick=()=>{const d=$('#diagBox');d.style.display=d.style.display==='none'?'block':'none';};
+    { const bo=$('#bOut'); if(bo) bo.onclick=()=>{ try{ localStorage.removeItem('waka_sb_session'); }catch(e){} location.reload(); }; }
     $('#bRe').onclick=async()=>{ await diagnose(); await loadAll(); toast('保存先を確認しました'); };
   }
 
@@ -2397,6 +2398,109 @@
   });
 
   /* ===== 保存先の用意：新しいおへやの保存の仕組みに橋をかける ===== */
+  /* ===== クラウド保存（Supabase）：MacでもiPhoneでも同じ答案が出る ===== */
+  async function ensureCloud(){
+    if(window.storage) return false;
+    const SB_URL='https://pleuzhcpdwkdjuzrvomb.supabase.co', SB_KEY='sb_publishable_6qNh5XxWXFFxShwL2PotVw_MVRBzX7t';
+    if(!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$|^http:\/\/localhost/.test(SB_URL)) return false;
+    const BASE=SB_URL.replace(/\/$/,''), SK='waka_sb_session';
+    let sess=null;
+    try{ sess=JSON.parse(localStorage.getItem(SK)||'null'); }catch(e){ sess=null; }
+    const keep=j=>{
+      sess={access_token:j.access_token,refresh_token:j.refresh_token,
+            expires_at:j.expires_at||Math.floor(Date.now()/1000)+(j.expires_in||3600),
+            user_id:(j.user&&j.user.id)||(sess&&sess.user_id)};
+      try{ localStorage.setItem(SK,JSON.stringify(sess)); }catch(e){}
+    };
+    const drop=()=>{ sess=null; try{ localStorage.removeItem(SK); }catch(e){} };
+    async function raw(path,method,body,bearer,extra){
+      const h=Object.assign({apikey:SB_KEY,'Content-Type':'application/json'},bearer?{Authorization:'Bearer '+bearer}:{},extra||{});
+      return fetch(BASE+path,{method:method,headers:h,body:body==null?undefined:JSON.stringify(body)});
+    }
+    async function refresh(){
+      const r=await raw('/auth/v1/token?grant_type=refresh_token','POST',{refresh_token:sess.refresh_token});
+      if(!r.ok){ drop(); throw new Error('ログインの期限が切れました。ページを開き直して，もう一度ログインしてください。'); }
+      keep(await r.json());
+    }
+    async function token(){
+      if(!sess) throw new Error('ログインしていません。ページを開き直してください。');
+      if(sess.expires_at*1000-Date.now()<60000) await refresh();
+      return sess.access_token;
+    }
+    async function rest(path,method,body,extra){
+      let r=await raw('/rest/v1/'+path,method,body,await token(),extra);
+      if(r.status===401){ await refresh(); r=await raw('/rest/v1/'+path,method,body,sess.access_token,extra); }
+      if(!r.ok){
+        let t=''; try{ t=(await r.text()).slice(0,160); }catch(e){}
+        throw new Error('クラウドとの通信に失敗しました（'+r.status+'）'+(t?' '+t:''));
+      }
+      return r;
+    }
+    /* ログイン画面 */
+    function loginUI(){
+      return new Promise(function(done){
+        const ov=document.createElement('div');
+        ov.style.cssText='position:fixed;inset:0;z-index:200;background:#FAFBF3;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto';
+        ov.innerHTML='<div style="width:min(380px,100%);background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 24px;box-shadow:0 8px 30px rgba(78,139,95,.14)">'
+          +'<div style="text-align:center;font-size:44px;line-height:1">\u{1F43C}</div>'
+          +'<h2 style="font-family:var(--mincho);text-align:center;margin:8px 0 4px;font-size:21px;letter-spacing:.06em">わかちゃんのおへや</h2>'
+          +'<p style="text-align:center;font-size:12px;color:var(--muted);margin:0 0 16px">ログインすると，どの端末でも同じ答案が出ます</p>'
+          +'<form id="lgF"><div class="fld"><label>メールアドレス</label><input class="fin2" id="lgE" type="email" autocomplete="username" required></div>'
+          +'<div class="fld"><label>パスワード（8文字以上）</label><input class="fin2" id="lgP" type="password" autocomplete="current-password" minlength="8" required></div>'
+          +'<div id="lgM" style="min-height:20px;font-size:12.5px;color:#8A4049;margin-bottom:8px"></div>'
+          +'<div class="row" style="flex-direction:column;align-items:stretch;gap:8px">'
+          +'<button class="btn pri" id="lgIn" type="submit">ログイン</button>'
+          +'<button class="btn" id="lgUp" type="button">はじめて使う（新しく登録）</button></div></form></div>';
+        document.body.appendChild(ov);
+        const E=ov.querySelector('#lgE'), P=ov.querySelector('#lgP'), M=ov.querySelector('#lgM');
+        const say=t=>{ M.textContent=t||''; };
+        const busyBtn=on=>ov.querySelectorAll('button').forEach(b=>b.disabled=on);
+        async function go(signup){
+          if(!E.value||P.value.length<8){ say('メールアドレスと，8文字以上のパスワードを入れてください。'); return; }
+          say(''); busyBtn(true);
+          try{
+            const r=await raw(signup?'/auth/v1/signup':'/auth/v1/token?grant_type=password','POST',{email:E.value.trim(),password:P.value});
+            const j=await r.json().catch(()=>({}));
+            if(!r.ok){
+              const m=String(j.msg||j.error_description||j.message||'');
+              if(/already|registered/i.test(m)) say('このメールアドレスはもう登録されています。「ログイン」を押してください。');
+              else if(/invalid|credentials/i.test(m)) say('メールアドレスかパスワードが違います。はじめての場合は「新しく登録」を押してください。');
+              else if(/signups? (not allowed|disabled)/i.test(m)) say('新しい登録は止めてあります。すでに登録した人だけがログインできます。');
+              else say('うまくいきませんでした。'+(m?'（'+m.slice(0,80)+'）':''));
+              busyBtn(false); return;
+            }
+            if(!j.access_token){ say('確認メールを送りました。メールのリンクを押してから，「ログイン」を押してください。'); busyBtn(false); return; }
+            keep(j); ov.remove(); done();
+          }catch(e){ say('通信できませんでした。電波を確認して，もう一度押してください。'); busyBtn(false); }
+        }
+        ov.querySelector('#lgF').onsubmit=function(ev){ ev.preventDefault(); go(false); };
+        ov.querySelector('#lgUp').onclick=function(){ go(true); };
+      });
+    }
+    let ok=false;
+    if(sess){ try{ await token(); ok=true; }catch(e){ ok=false; } }
+    if(!ok){ setLoading(false); await loginUI(); setLoading(true,'クラウドからよみこんでいます…'); }
+    window.__sync=true;
+    const enc=encodeURIComponent;
+    window.storage={
+      get:async k=>{
+        const r=await rest('waka_kv?select=value&key=eq.'+enc(k),'GET');
+        const a=await r.json(); return a&&a.length?{key:k,value:a[0].value}:null;
+      },
+      set:async (k,v)=>{
+        await rest('waka_kv?on_conflict=user_id,key','POST',[{user_id:sess.user_id,key:String(k),value:String(v),updated_at:new Date().toISOString()}],
+          {Prefer:'resolution=merge-duplicates,return=minimal'});
+        return true;
+      },
+      delete:async k=>{ await rest('waka_kv?key=eq.'+enc(k),'DELETE'); return true; },
+      list:async p=>{
+        const r=await rest('waka_kv?select=key','GET'); const a=await r.json();
+        return {keys:(a||[]).map(x=>x.key).filter(x=>String(x).indexOf(p)===0)};
+      }
+    };
+    return true;
+  }
+
   async function ensureStorage(){
     if(window.storage) return;
     /* ふつうのウェブサイトとして開いたとき：このブラウザの中（IndexedDB）に保存する */
@@ -2423,7 +2527,7 @@
 
   (async function init(){
     setLoading(true,'保存先をたしかめています…');
-    try{ await ensureStorage(); await diagnose(); paintStatus(); }finally{ setLoading(false); }
+    try{ if(!(await ensureCloud())) await ensureStorage(); await diagnose(); paintStatus(); }finally{ setLoading(false); }
     await loadAll();
   })();
 })();
