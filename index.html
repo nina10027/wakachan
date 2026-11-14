@@ -343,7 +343,7 @@
     <div class="brand" id="brand">
       <div>
         <h1>わかちゃんのおへや🐼</h1>
-        <small>WAKACHAN'S ROOM 🎋 笹保存庫と笹ごよみ ／ ver.38（11/14）</small>
+        <small>WAKACHAN'S ROOM 🎋 笹保存庫と笹ごよみ ／ ver.39（11/14）</small>
       </div>
     </div>
     <div class="acts">
@@ -727,6 +727,7 @@
         +(d.stage==='kousei'?'<span class="stg k">答案構成</span>':'')
         +'<span class="sub2">'+esc(d.subject||'—')+'</span>'
         +(nc?'<span class="cmt">メモ '+nc+'</span>':'')
+        +(d.reviewed?'<span class="kind">\u{1F43C} 添削済み</span>':'')
         +(d.rate?'<span class="tagf">'+'\u{1F43C}'.repeat(d.rate)+'</span>':'')
         +(d.hasProblem?'<span class="tagf">📄 問題つき</span>':'')
         +(d.hasShushi?'<span class="tagf">📘 趣旨つき</span>':'')
@@ -1299,9 +1300,19 @@
       const h=dw.querySelector('#infoHost');
       h.innerHTML='<div class="row" style="margin:0 0 12px">'
         +'<button class="btn sm" id="infoEdit">年度・試験・科目・種類・書いた日をなおす</button>'
+        +'<button class="btn sm" id="revTog"></button>'
         +'<button class="btn sm" id="cmWord">📝 コメント付きWordを読み込む</button>'
         +'<input type="file" id="cmFile" accept=".docx" style="display:none"></div><div id="cmMsg"></div>';
       h.querySelector('#infoEdit').onclick=editInfo;
+      { const rt=h.querySelector('#revTog');
+        const paintRev=()=>{ rt.textContent=d.reviewed?'\u{1F43C} 添削済み（押すと外す）':'\u{1F43C} 添削済みにする'; rt.className='btn sm'+(d.reviewed?' pri':''); };
+        paintRev();
+        rt.onclick=async function(){
+          const was=!!d.reviewed; d.reviewed=!was; rt.disabled=true;
+          try{ await putKind('d',d); localPut('d',d); toast(d.reviewed?'添削済みにしました':'添削済みを外しました'); }
+          catch(err){ d.reviewed=was; toast('保存できませんでした'); }
+          rt.disabled=false; paintRev();
+        }; }
       h.querySelector('#cmWord').onclick=()=>h.querySelector('#cmFile').click();
       h.querySelector('#cmFile').onchange=async function(ev){
         const f=ev.target.files[0]; if(!f) return;
@@ -1353,6 +1364,7 @@
         +'<option value="kousei"'+(d.stage==='kousei'?' selected':'')+'>答案構成</option></select></div>'
         +'<div class="fld"><label>書いた日<span class="opt">カレンダーに出ます</span></label>'
         +'<input class="fin2" type="date" id="i_written" value="'+esc(d.writtenDate||'')+'"></div>'
+        +'<div class="fld"><label style="display:flex;align-items:center;gap:8px;letter-spacing:0;font-size:13px;color:var(--ink);cursor:pointer"><input type="checkbox" id="i_rev"'+(d.reviewed?' checked':'')+'> \u{1F43C} 添削済み<span class="opt">成長記録に反映</span></label></div>'
         +'<div class="fld"><label>自己評価</label><div class="rate" id="i_rate"></div></div>'
         +'<div class="row"><button class="btn pri sm" id="iSave">保存</button>'
         +'<button class="btn sm" id="iCancel">やめる</button></div><div id="iErr"></div></div>';
@@ -1361,18 +1373,18 @@
       h.querySelector('#iCancel').onclick=paintInfoBox;
       h.querySelector('#iSave').onclick=async function(e){
         const btn=e.currentTarget; btn.disabled=true; btn.textContent='保存しています…';
-        const bk={year:d.year,exam:d.exam,subject:d.subject,writtenDate:d.writtenDate,stage:d.stage};
+        const bk={year:d.year,exam:d.exam,subject:d.subject,writtenDate:d.writtenDate,stage:d.stage,reviewed:d.reviewed};
         try{
           d.year=h.querySelector('#i_year').value;
           d.exam=h.querySelector('#i_exam').value;
           d.subject=h.querySelector('#i_subject').value;
           d.writtenDate=h.querySelector('#i_written').value;
-          d.stage=h.querySelector('#i_stage').value;
+          d.stage=h.querySelector('#i_stage').value; d.reviewed=h.querySelector('#i_rev').checked;
           d.rate=iRate;
           await putKind('d',d); localPut('d',d);
           closeDrawer(); openView(id); toast('編集しました');
         }catch(err){
-          d.year=bk.year; d.exam=bk.exam; d.subject=bk.subject; d.writtenDate=bk.writtenDate; d.stage=bk.stage;
+          d.year=bk.year; d.exam=bk.exam; d.subject=bk.subject; d.writtenDate=bk.writtenDate; d.stage=bk.stage; d.reviewed=bk.reviewed;
           btn.disabled=false; btn.textContent='保存';
           h.querySelector('#iErr').innerHTML='<div class="err">'+esc(emsg(err))+'</div>';
         }
@@ -1390,9 +1402,19 @@
       const h=dw.querySelector('#infoHost');
       h.innerHTML='<div class="row" style="margin:0 0 12px">'
         +'<button class="btn sm" id="infoEdit">年度・試験・科目・種類・書いた日をなおす</button>'
+        +'<button class="btn sm" id="revTog"></button>'
         +'<button class="btn sm" id="cmWord">📝 コメント付きWordを読み込む</button>'
         +'<input type="file" id="cmFile" accept=".docx" style="display:none"></div><div id="cmMsg"></div>';
       h.querySelector('#infoEdit').onclick=editInfo;
+      { const rt=h.querySelector('#revTog');
+        const paintRev=()=>{ rt.textContent=d.reviewed?'\u{1F43C} 添削済み（押すと外す）':'\u{1F43C} 添削済みにする'; rt.className='btn sm'+(d.reviewed?' pri':''); };
+        paintRev();
+        rt.onclick=async function(){
+          const was=!!d.reviewed; d.reviewed=!was; rt.disabled=true;
+          try{ await putKind('d',d); localPut('d',d); toast(d.reviewed?'添削済みにしました':'添削済みを外しました'); }
+          catch(err){ d.reviewed=was; toast('保存できませんでした'); }
+          rt.disabled=false; paintRev();
+        }; }
       h.querySelector('#cmWord').onclick=()=>h.querySelector('#cmFile').click();
       h.querySelector('#cmFile').onchange=async function(ev){
         const f=ev.target.files[0]; if(!f) return;
@@ -1444,6 +1466,7 @@
         +'<option value="kousei"'+(d.stage==='kousei'?' selected':'')+'>答案構成</option></select></div>'
         +'<div class="fld"><label>書いた日<span class="opt">カレンダーに出ます</span></label>'
         +'<input class="fin2" type="date" id="i_written" value="'+esc(d.writtenDate||'')+'"></div>'
+        +'<div class="fld"><label style="display:flex;align-items:center;gap:8px;letter-spacing:0;font-size:13px;color:var(--ink);cursor:pointer"><input type="checkbox" id="i_rev"'+(d.reviewed?' checked':'')+'> \u{1F43C} 添削済み<span class="opt">成長記録に反映</span></label></div>'
         +'<div class="fld"><label>自己評価</label><div class="rate" id="i_rate"></div></div>'
         +'<div class="row"><button class="btn pri sm" id="iSave">保存</button>'
         +'<button class="btn sm" id="iCancel">やめる</button></div><div id="iErr"></div></div>';
@@ -1452,18 +1475,18 @@
       h.querySelector('#iCancel').onclick=paintInfoBox;
       h.querySelector('#iSave').onclick=async function(e){
         const btn=e.currentTarget; btn.disabled=true; btn.textContent='保存しています…';
-        const bk={year:d.year,exam:d.exam,subject:d.subject,writtenDate:d.writtenDate,stage:d.stage};
+        const bk={year:d.year,exam:d.exam,subject:d.subject,writtenDate:d.writtenDate,stage:d.stage,reviewed:d.reviewed};
         try{
           d.year=h.querySelector('#i_year').value;
           d.exam=h.querySelector('#i_exam').value;
           d.subject=h.querySelector('#i_subject').value;
           d.writtenDate=h.querySelector('#i_written').value;
-          d.stage=h.querySelector('#i_stage').value;
+          d.stage=h.querySelector('#i_stage').value; d.reviewed=h.querySelector('#i_rev').checked;
           d.rate=iRate;
           await putKind('d',d); localPut('d',d);
           closeDrawer(); openView(id); toast('編集しました');
         }catch(err){
-          d.year=bk.year; d.exam=bk.exam; d.subject=bk.subject; d.writtenDate=bk.writtenDate; d.stage=bk.stage;
+          d.year=bk.year; d.exam=bk.exam; d.subject=bk.subject; d.writtenDate=bk.writtenDate; d.stage=bk.stage; d.reviewed=bk.reviewed;
           btn.disabled=false; btn.textContent='保存';
           h.querySelector('#iErr').innerHTML='<div class="err">'+esc(emsg(err))+'</div>';
         }
@@ -2064,7 +2087,7 @@
   }
   function renderGrow(){
     const host=$('#grow'); if(!host) return;
-    const reviewed={}; comments.forEach(c=>{ if(c.word) reviewed[c.draftId]=true; });
+    const reviewed={}; drafts.forEach(d=>{ if(d.reviewed) reviewed[d.id]=true; });
     const cnt=[0,0,0,0], per=GROW_SUBJ.map(()=>[0,0,0,0]);
     const grid=GROW_YEARS.map(yr=>GROW_SUBJ.map((s,j)=>{ const c=growCell(yr,s[0],reviewed); cnt[c.lv]++; per[j][c.lv]++; return c; }));
     const total=GROW_YEARS.length*GROW_SUBJ.length, done=total-cnt[0];
@@ -2108,7 +2131,7 @@
       +'<div class="gw-lg">'+[1,2,3].map(l=>'<span><span class="sl l'+l+'">'+GROW_SEAL[l]+'</span>'+GROW_LV[l]+'</span>').join('')
       +'<span>\u{1F43C}<span class="n" style="font-family:var(--num)">4</span>＝自己評価</span></div>'
       +'<p class="gw-note">マスを押すと，その答案が開きます．空いているマスからは，その年度・科目を選んだ状態で答案を置けます．<br>'
-      +'状態は自動で決まります：種類「答案構成」で置く→構成，「起案」で置く→起案，コメント付きWordを取り込む→添削．'
+      +'状態は自動で決まります：種類「答案構成」で置く→構成，「起案」で置く→起案，答案を開いて「添削済みにする」を押す→添削（Wordのコメントを取り込んでも，自動では変わりません）．'
       +'同じマスに答案が2通以上あるときは，いちばん進んだ状態を表示します．</p>';
     host.innerHTML=h;
     host.querySelectorAll('.ce').forEach(b=>b.onclick=()=>{
