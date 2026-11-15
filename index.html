@@ -287,7 +287,7 @@
   .gw-bar{display:flex;height:6px;background:#EEF1E7;border-radius:3px;overflow:hidden;margin-bottom:20px}
   .gw-bar i{display:block;height:100%;transition:width .5s}
   .gw-bar .b3{background:var(--shu)}.gw-bar .b2{background:var(--bamboo)}.gw-bar .b1{background:var(--sasa-p)}
-  .gw-tbl{overflow-x:auto;border:1px solid #CBD6C6;border-radius:4px;background:#FFFFFF}
+  .gw-tbl{max-width:900px;overflow-x:auto;border:1px solid #CBD6C6;border-radius:4px;background:#FFFFFF}
   .gw table{border-collapse:collapse;width:100%;min-width:760px;table-layout:fixed}
   .gw th,.gw td{border:1px solid #DCE4D8;text-align:center;padding:0}
   .gw thead th{background:#F6F8F1;font-weight:600;color:var(--sumi)}
@@ -298,7 +298,7 @@
       border-right:1.5px solid var(--ink)}
   .gw td.y b{display:block;font-family:var(--num);font-weight:400;font-size:20px;line-height:1.1;color:var(--ink)}
   .gw td.y small{font-family:var(--num);font-size:11px;color:var(--muted);letter-spacing:.06em}
-  .gw .ce{width:100%;height:80px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;
+  .gw .ce{width:100%;height:74px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;
       justify-content:center;gap:4px;padding:8px 2px;cursor:pointer;transition:background .15s}
   .gw .ce:hover{background:var(--bamboo-l)}
   .gw .ce:focus-visible{outline:2px solid var(--bamboo);outline-offset:-3px}
@@ -309,6 +309,11 @@
   .gw .sl svg{width:100%;height:100%;display:block}
   .gw .ce .sl:not(.l0){width:42px;height:42px}
   .gw .ce .sl.l3{font-size:20px}
+  .gw .ce .st{display:flex;align-items:center;justify-content:center;gap:3px}
+  .gw .ce .st.two .sl{width:28px;height:28px}
+  .gw .ce .st.two .sl.l3{font-size:20px;width:30px;height:30px}
+  .gw .ce .st.two .sl.l3 .em{font-size:1em!important}
+  .gw .ce .st.two .sl:not(.l3){width:34px;height:34px}
   .gw .sl.l3{background:none;border:0;transform:none}
   .gw .ce .rt{font-family:var(--num);font-size:12px;color:var(--sumi);line-height:1;white-space:nowrap}
   .gw .ce .dt{font-family:var(--num);font-size:10.5px;color:var(--muted);line-height:1;letter-spacing:.04em}
@@ -343,7 +348,7 @@
     <div class="brand" id="brand">
       <div>
         <h1>わかちゃんのおへや🐼</h1>
-        <small>WAKACHAN'S ROOM 🎋 笹保存庫と笹ごよみ ／ ver.39（11/14）</small>
+        <small>WAKACHAN'S ROOM 🎋 笹保存庫と笹ごよみ ／ ver.42（11/15）</small>
       </div>
     </div>
     <div class="acts">
@@ -1837,6 +1842,7 @@
       +'<button class="btn" id="bShu" style="width:100%">出題趣旨のファイルを選ぶ（PDF・画像・テキスト）</button>'
       +'<input type="file" id="shu" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.md" style="display:none">'
       +'<div class="hint" id="shuname">まだ選んでいません</div></div>'
+      +'<div class="fld"><label style="display:flex;align-items:center;gap:8px;letter-spacing:0;font-size:13px;color:var(--ink);cursor:pointer"><input type="checkbox" id="u_rev"> 🐼 添削済み<span class="opt">任意・成長記録に反映</span></label></div>'
       +'<div class="fld"><label>自己評価<span class="opt">任意</span></label><div class="rate" id="u_rate"></div></div>'
       +'<div class="fld"><label>メモ<span class="opt">任意</span></label><textarea class="ta short" id="u_memo" placeholder="例：設問3は時間切れ。強盗の機会性で迷った。"></textarea></div>'
       +'<div class="fld"><label>答案本文<span class="req">必須</span></label><textarea class="ta" id="u_body"></textarea><div class="hint" id="u_cnt"></div></div>'
@@ -1978,7 +1984,7 @@
       const rec={id:uid(),author:AUTHOR,year:g('u_year').value,exam:g('u_exam').value,subject:g('u_subject').value,
         writtenDate:g('u_written').value||'',memo:g('u_memo').value.trim(),filename:dw.dataset.filename||'',
         body:normText(g('u_body').value),uploadedAt:new Date().toISOString(),
-        rate:uRate,stage:g('u_stage').value,
+        rate:uRate,stage:g('u_stage').value,reviewed:g('u_rev').checked,
         hasProblem:!!prbFile,problemName:prbFile?prbFile.name:'',
         hasShushi:!!shuFile,shushiName:shuFile?shuFile.name:'',
         scan:!!(scanPages&&scanPages.length),pageCount:(scanPages?scanPages.length:0),
@@ -2080,16 +2086,16 @@
   function growCell(yr,subj,reviewed){
     const ys=[yr[0]].concat(yr[2]?[yr[2]]:[]);
     const list=drafts.filter(d=>fixExam(d.exam)==='司法試験'&&ys.indexOf(d.year)>=0&&d.subject===subj);
-    const lvOf=d=>reviewed[d.id]?3:(d.stage==='kousei'?1:2);
-    let lv=0; list.forEach(d=>{ lv=Math.max(lv,lvOf(d)); });
+    const lvOf=d=>d.stage==='kousei'?1:2;
+    let lv=0, rev=false; list.forEach(d=>{ lv=Math.max(lv,lvOf(d)); if(reviewed[d.id]) rev=true; });
     const top=list.filter(d=>lvOf(d)===lv).sort((a,b)=>(b.writtenDate||fmtDay(b.uploadedAt)).localeCompare(a.writtenDate||fmtDay(a.uploadedAt)))[0]||null;
-    return {list:list,lv:lv,top:top};
+    return {list:list,lv:lv,rev:rev,top:top};
   }
   function renderGrow(){
     const host=$('#grow'); if(!host) return;
     const reviewed={}; drafts.forEach(d=>{ if(d.reviewed) reviewed[d.id]=true; });
-    const cnt=[0,0,0,0], per=GROW_SUBJ.map(()=>[0,0,0,0]);
-    const grid=GROW_YEARS.map(yr=>GROW_SUBJ.map((s,j)=>{ const c=growCell(yr,s[0],reviewed); cnt[c.lv]++; per[j][c.lv]++; return c; }));
+    const cnt=[0,0,0], per=GROW_SUBJ.map(()=>[0,0,0]), prev=GROW_SUBJ.map(()=>0); let rc=0;
+    const grid=GROW_YEARS.map(yr=>GROW_SUBJ.map((s,j)=>{ const c=growCell(yr,s[0],reviewed); cnt[c.lv]++; per[j][c.lv]++; if(c.rev){ rc++; prev[j]++; } return c; }));
     const total=GROW_YEARS.length*GROW_SUBJ.length, done=total-cnt[0];
     const pct=Math.round(done/total*100);
     const w=n=>(n/total*100).toFixed(2)+'%';
@@ -2101,10 +2107,11 @@
       +'<p class="gw-sub">司法試験 論文式　平成29年〜令和8年 ／ 必修7科目＋倒産法</p></div>'
       +'<div class="gw-pct"><b>'+pct+'<i>%</i></b><small>着手した問題 <span class="n">'+done+' / '+total+'</span></small></div></div>'
       +'<div class="gw-stats">'
-      +[3,2,1,0].map(l=>'<div class="gw-st"><span><span class="sl l'+l+'" style="width:18px;height:18px;font-size:10px;transform:none">'+GROW_SEAL[l]+'</span>'+GROW_LV[l]+'</span>'
-        +'<b>'+cnt[l]+'<em>/ '+total+'</em></b></div>').join('')
+      +[[3,rc],[2,cnt[2]],[1,cnt[1]],[0,cnt[0]]].map(a=>{ const l=a[0]; return '<div class="gw-st"><span><span class="sl l'+l+'" style="width:18px;height:18px;font-size:10px;transform:none">'+GROW_SEAL[l]+'</span>'+GROW_LV[l]+'</span>'
+        +'<b>'+a[1]+'<em>/ '+total+'</em></b></div>'; }).join('')
       +'</div>'
-      +'<div class="gw-bar"><i class="b3" style="width:'+w(cnt[3])+'"></i><i class="b2" style="width:'+w(cnt[2])+'"></i><i class="b1" style="width:'+w(cnt[1])+'"></i></div>'
+      +'<div class="gw-bar" style="margin-bottom:5px"><i class="b2" style="width:'+w(cnt[2])+'"></i><i class="b1" style="width:'+w(cnt[1])+'"></i></div>'
+      +'<div class="gw-bar" style="height:4px"><i class="b3" style="width:'+w(rc)+'"></i></div>'
       +'<div class="gw-tbl"><table><thead><tr class="g"><th class="yh" rowspan="2" style="font-size:11.5px;letter-spacing:.2em;border-bottom:1.5px solid var(--ink);border-right:1.5px solid var(--ink)">年度</th>'
       +groups.map(g=>'<th colspan="'+g[1]+'">'+g[0]+'</th>').join('')+'</tr><tr class="s">'
       +GROW_SUBJ.map(s=>'<th>'+s[1]+'</th>').join('')+'</tr></thead><tbody>';
@@ -2112,9 +2119,9 @@
       h+='<tr><td class="y"><b>'+yr[0]+'</b><small>'+yr[1]+'</small></td>';
       GROW_SUBJ.forEach((s,j)=>{
         const c=grid[i][j], t=c.top;
-        const tip=yr[0]+' '+s[0]+'：'+GROW_LV[c.lv]+(c.list.length>1?'（'+c.list.length+'通）':'');
+        const tip=yr[0]+' '+s[0]+'：'+GROW_LV[c.lv]+(c.rev?'・添削済み':'')+(c.list.length>1?'（'+c.list.length+'通）':'');
         h+='<td><button class="ce" data-i="'+i+'" data-j="'+j+'" title="'+esc(tip)+'" aria-label="'+esc(tip)+'">'
-          +'<span class="sl l'+c.lv+'">'+GROW_SEAL[c.lv]+'</span>'
+          +'<span class="st'+(c.rev?' two':'')+'"><span class="sl l'+c.lv+'">'+GROW_SEAL[c.lv]+'</span>'+(c.rev?'<span class="sl l3">'+GROW_SEAL[3]+'</span>':'')+'</span>'
           +(t&&t.rate?'<span class="rt">\u{1F43C}<span class="n">'+t.rate+'</span></span>':'')
           +(t?'<span class="dt">'+esc(md(t.writtenDate||t.uploadedAt))
             +(c.list.length>1?' <span class="mul">×'+c.list.length+'</span>':'')+'</span>':'')
@@ -2123,27 +2130,27 @@
       h+='</tr>';
     });
     h+='</tbody><tfoot><tr><td class="y">着手</td>'
-      +per.map(p=>{ const n=GROW_YEARS.length, d=n-p[0], ww=x=>(x/n*100)+'%';
+      +per.map((p,jj)=>{ const n=GROW_YEARS.length, d=n-p[0], ww=x=>(x/n*100)+'%';
         return '<td class="ft"><b>'+d+'</b><span> / '+n+'</span><div class="mb">'
-          +'<i style="width:'+ww(p[3])+';background:var(--shu)"></i><i style="width:'+ww(p[2])+';background:var(--bamboo)"></i>'
-          +'<i style="width:'+ww(p[1])+';background:var(--sasa-p)"></i></div></td>'; }).join('')
+          +'<i style="width:'+ww(p[2])+';background:var(--bamboo)"></i>'
+          +'<i style="width:'+ww(p[1])+';background:var(--sasa-p)"></i></div><div class="mb" style="margin-top:3px"><i style="width:'+ww(prev[jj])+';background:var(--shu)"></i></div></td>'; }).join('')
       +'</tr></tfoot></table></div>'
       +'<div class="gw-lg">'+[1,2,3].map(l=>'<span><span class="sl l'+l+'">'+GROW_SEAL[l]+'</span>'+GROW_LV[l]+'</span>').join('')
       +'<span>\u{1F43C}<span class="n" style="font-family:var(--num)">4</span>＝自己評価</span></div>'
       +'<p class="gw-note">マスを押すと，その答案が開きます．空いているマスからは，その年度・科目を選んだ状態で答案を置けます．<br>'
       +'状態は自動で決まります：種類「答案構成」で置く→構成，「起案」で置く→起案，答案を開いて「添削済みにする」を押す→添削（Wordのコメントを取り込んでも，自動では変わりません）．'
-      +'同じマスに答案が2通以上あるときは，いちばん進んだ状態を表示します．</p>';
+      +'添削済みは，笹とは別に🐼が並んで出ます．同じマスに答案が2通以上あるときは，笹はいちばん進んだ状態を，🐼は1通でも添削済みがあれば表示します．</p>';
     host.innerHTML=h;
     host.querySelectorAll('.ce').forEach(b=>b.onclick=()=>{
       const yr=GROW_YEARS[+b.dataset.i], s=GROW_SUBJ[+b.dataset.j];
       const c=grid[+b.dataset.i][+b.dataset.j];
       if(!c.list.length){ openUpload({year:yr[0],exam:'司法試験',subject:s[0]}); return; }
       if(c.list.length===1){ openView(c.list[0].id); return; }
-      const lvOf=d=>reviewed[d.id]?3:(d.stage==='kousei'?1:2);
+      const lvOf=d=>d.stage==='kousei'?1:2;
       const items=c.list.slice().sort((a,b)=>(b.writtenDate||'').localeCompare(a.writtenDate||'')).map(d=>{
         const l=lvOf(d);
         return '<button data-id="'+esc(d.id)+'"><span class="sl l'+l+'" style="font-family:var(--mincho);display:inline-grid;place-items:center;width:30px;height:30px;border-radius:3px;font-weight:700">'+GROW_SEAL[l]+'</span>'
-          +'<span style="flex:1"><b style="font-weight:600">'+GROW_LV[l]+'</b>　<span class="n">'+esc(d.writtenDate||fmtDay(d.uploadedAt))+'</span>'
+          +'<span style="flex:1"><b style="font-weight:600">'+GROW_LV[l]+'</b>'+(reviewed[d.id]?'　🐼 添削済み':'')+'　<span class="n">'+esc(d.writtenDate||fmtDay(d.uploadedAt))+'</span>'
           +(d.rate?'　\u{1F43C}'+d.rate:'')
           +'<br><span class="pv">'+esc((d.memo||(d.body||'').replace(/\s+/g,' ')).slice(0,60))+'</span></span></button>';
       }).join('');
