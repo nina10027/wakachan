@@ -197,6 +197,20 @@
   .attHd{display:flex;align-items:center;gap:9px;padding:10px 14px;background:#FBF7EF;cursor:pointer;font-size:13px}
   .attHd .nm{flex:1;font-family:var(--mono);font-size:11.5px;color:var(--muted);
              overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ogw{display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:820px){.ogw.hc{grid-template-columns:minmax(0,1fr) 270px}}
+  .ogd{white-space:pre-wrap;word-break:break-all;font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","MS Mincho",serif;font-size:14px;line-height:1.85;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;max-height:72vh;overflow:auto}
+  .ogd mark.oc{background:#FBEBB0;border-radius:2px;cursor:pointer;color:inherit}
+  .ogd mark.oc.on{background:#F3C94F}
+  .ogd sup.ocn{font-size:10px;font-weight:700;color:#9A6B00;cursor:pointer;margin:0 1px;font-family:system-ui,sans-serif}
+  .ogc{display:flex;flex-direction:column;gap:8px;max-height:72vh;overflow:auto}
+  .ogcm{border:1px solid var(--line);border-left:3px solid #E0B43C;border-radius:8px;padding:8px 10px;font-size:13px;line-height:1.6;background:var(--surface);cursor:pointer}
+  .ogcm.on{box-shadow:0 0 0 2px #F3C94F}
+  .ogcm .no{display:inline-block;min-width:18px;height:18px;line-height:18px;text-align:center;border-radius:9px;background:#E0B43C;color:#fff;font-size:11px;font-weight:700;margin-right:6px}
+  .ogcm .au{font-size:11px;color:var(--muted)}
+  .ogcm .q{font-size:11px;color:var(--muted);margin:3px 0}
+  .ogcm .b{white-space:pre-wrap}
+  .ogtag{font-size:11px;color:var(--muted);margin-bottom:8px}
   .attBody{padding:12px 14px;border-top:1px dashed var(--line);background:#FDFDFB}
   .attBody canvas,.attBody img{max-width:100%;display:block;margin:0 auto 10px;border:1px solid var(--line);border-radius:6px}
   .attBody pre{font-family:var(--mincho);font-size:13px;white-space:pre-wrap;line-height:1.9;margin:0}
@@ -348,7 +362,7 @@
     <div class="brand" id="brand">
       <div>
         <h1>わかちゃんのおへや🐼</h1>
-        <small>WAKACHAN'S ROOM 🎋 笹保存庫と笹ごよみ ／ ver.42（11/15）</small>
+        <small>WAKACHAN'S ROOM 🎋 笹保存庫と笹ごよみ ／ ver.43（11/20）</small>
       </div>
     </div>
     <div class="acts">
@@ -735,7 +749,7 @@
         +(d.reviewed?'<span class="kind">\u{1F43C} 添削済み</span>':'')
         +(d.rate?'<span class="tagf">'+'\u{1F43C}'.repeat(d.rate)+'</span>':'')
         +(d.hasProblem?'<span class="tagf">📄 問題つき</span>':'')
-        +(d.hasShushi?'<span class="tagf">📘 趣旨つき</span>':'')
+        +(d.hasShushi?'<span class="tagf">📘 趣旨つき</span>':'')+(d.hasOrig?'<span class="tagf">📎 原本</span>':'')
         +(d.scan?'<span class="tagf">📷 手書き原本</span>':'')
         +(d.transcript==='claude'&&!d.checked?'<span class="cmt">要見なおし</span>':'')+'</span>'
         +'<span class="c2"><span><b>'+ch.toLocaleString()+'</b> 字</span>'
@@ -829,6 +843,37 @@
     }
     return out.join('\n');
   }
+  async function renderDocx(u8,box){
+    const r=await readDocx(new Blob([u8]));
+    const t=r.text||'', cms=r.comments||[];
+    const marks=cms.map((c,i)=>({n:i+1,s:c.s,e:c.e})).filter(m=>m.s!=null&&m.e!=null&&m.e>m.s);
+    const pts=new Set([0,t.length]); marks.forEach(m=>{pts.add(m.s);pts.add(m.e);});
+    const P=Array.from(pts).sort((a,b)=>a-b);
+    let h='';
+    for(let i=0;i<P.length-1;i++){
+      const a=P[i],b=P[i+1], seg=esc(t.slice(a,b));
+      const cov=marks.filter(m=>m.s<=a&&m.e>=b);
+      h+=cov.length?'<mark class="oc" data-n="'+cov[cov.length-1].n+'">'+seg+'</mark>':seg;
+      marks.filter(m=>m.e===b).forEach(m=>{ h+='<sup class="ocn" data-n="'+m.n+'">'+m.n+'</sup>'; });
+    }
+    box.innerHTML=(cms.length?'<div class="ogtag">コメント '+cms.length+' 件（黄色の部分か番号を押すと，対応するコメントが光ります）</div>':'')
+      +'<div class="ogw'+(cms.length?' hc':'')+'"><div class="ogd">'+h+'</div>'
+      +(cms.length?'<div class="ogc">'+cms.map((c,i)=>'<div class="ogcm" data-n="'+(i+1)+'"><span class="no">'+(i+1)+'</span>'
+        +(c.author?'<span class="au">'+esc(c.author)+'</span>':'')
+        +(c.quote?'<div class="q">「'+esc(c.quote.length>40?c.quote.slice(0,40)+'…':c.quote)+'」</div>':'')
+        +'<div class="b">'+esc(c.body)+'</div></div>').join('')+'</div>':'')+'</div>';
+    const lit=function(n,from){
+      box.querySelectorAll('.on').forEach(x=>x.classList.remove('on'));
+      box.querySelectorAll('[data-n="'+n+'"]').forEach(x=>{ if(x.tagName!=='SUP') x.classList.add('on'); });
+      const tgt=box.querySelector(from==='doc'?'.ogcm[data-n="'+n+'"]':'.ogd [data-n="'+n+'"]');
+      if(tgt){ const sc=tgt.closest(from==='doc'?'.ogc':'.ogd'); if(sc) sc.scrollTop=tgt.offsetTop-sc.offsetTop-40; }
+    };
+    box.querySelectorAll('.ogd [data-n]').forEach(x=>x.onclick=()=>lit(x.dataset.n,'doc'));
+    box.querySelectorAll('.ogcm').forEach(x=>x.onclick=()=>lit(x.dataset.n,'cm'));
+    return cms.length;
+  }
+  function isDocx(f){ return /wordprocessingml/.test(f.type||'')||/\.docx$/i.test(f.name||''); }
+  function origTitle(st){ return st==='kousei'?'答案構成の原本（テンプレ）':'起案の原本（添削コメント付きWordも可）'; }
   async function readDocx(file){
     if(!window.JSZip) throw new Error('Wordを読む部品を読み込めませんでした');
     const zip=await window.JSZip.loadAsync(await file.arrayBuffer());
@@ -861,7 +906,7 @@
         let au=''; for(let k=0;k<e.attributes.length;k++){ if(e.attributes[k].localName==='author') au=e.attributes[k].value; }
         const r=rg[id]||{};
         const q=(r.s!=null&&r.e!=null&&r.e>r.s)?text.slice(r.s,r.e):'';
-        list.push({id:id,body:body,author:au,quote:q});
+        list.push({id:id,body:body,author:au,quote:q,s:r.s,e:r.e});
       }
     }
     return {text:text,comments:list};
@@ -1074,7 +1119,7 @@
       +'<span>登録 <b>'+esc(fmtDay(d.uploadedAt))+'</b></span>'
       +(d.rate?'<span>自己評価 <b>'+'\u{1F43C}'.repeat(d.rate)+'</b></span>':'')+'</div>'
       +'<div id="infoHost"></div><div id="memoHost"></div>'
-      +'<div id="attScan"></div><div id="attProblem"></div><div id="attShushi"></div><div id="editHost"></div>'
+      +'<div id="attOrig"></div><div id="attScan"></div><div id="attProblem"></div><div id="attShushi"></div><div id="editHost"></div>'
       +'<div class="row" style="margin-bottom:10px"><input class="fin" id="rq" placeholder="本文内を検索" style="flex:1;max-width:320px">'
       +'<span class="hint" style="margin:0">本文を<b>ドラッグして選ぶ</b>か行をクリックすると、その場でメモを書けます。</span></div>'
       +'<div class="selbar" id="selbar" style="display:none"></div>'
@@ -1097,7 +1142,7 @@
     /* --- 添付の表示 --- */
     function attBlock(hostSel,slot,title,emptyLabel,allowEdit){
       const host=dw.querySelector(hostSel);
-      const HF={prb:['hasProblem','problemName'],shu:['hasShushi','shushiName']};
+      const HF={prb:['hasProblem','problemName'],shu:['hasShushi','shushiName'],org:['hasOrig','origName']};
       const kf=HF[slot]||HF.prb;
       const has=d[kf[0]];
       const nm=d[kf[1]]||'';
@@ -1105,11 +1150,20 @@
         +'<span>📄</span><b style="font-weight:600">'+esc(title)+'</b>'
         +'<span class="nm">'+esc(has?nm:emptyLabel)+'</span>'
         +(has?'<button class="btn sm" data-open="1">開く</button>':'')
+        +(has&&slot==='org'?'<button class="btn sm" data-dl="1">ファイルで保存</button>':'')
         +(allowEdit?'<button class="btn sm" data-add="1">'+(has?'差し替え':'つける')+'</button>':'')
         +(has&&allowEdit?'<button class="btn sm dgr" data-rm="1">外す</button>':'')
         +'</div><div class="attBody" style="display:none"></div></div>'
-        +'<input type="file" data-file="1" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.md" style="display:none">';
+        +'<input type="file" data-file="1" accept="'+(slot==='org'?'.docx,.pdf,.png,.jpg,.jpeg,.gif,.webp':'.pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.md')+'" style="display:none">';
       const body=host.querySelector('.attBody'), fi=host.querySelector('[data-file]');
+      const db=host.querySelector('[data-dl]');
+      if(db) db.onclick=async function(ev){
+        ev.stopPropagation();
+        const f=await getFile(d.id,slot); if(!f){ toast('ファイルが見つかりませんでした'); return; }
+        const url=URL.createObjectURL(new Blob([b64ToU8(f.data)],{type:f.type||'application/octet-stream'}));
+        const a=document.createElement('a'); a.href=url; a.download=f.name||'原本'; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),60000);
+      };
       const ob=host.querySelector('[data-open]');
       if(ob) ob.onclick=async function(ev){
         ev.stopPropagation();
@@ -1120,7 +1174,24 @@
         setLoading(false);
         if(!f){ body.innerHTML='<p class="hint">ファイルが見つかりませんでした。</p>'; return; }
         try{
-          if((f.type||'').indexOf('pdf')>=0){ await renderPdf(b64ToU8(f.data),body,10); }
+          if(isDocx(f)){
+            const n=await renderDocx(b64ToU8(f.data),body);
+            if(slot==='org'&&n&&d.stage!=='kousei'&&comments.some(c=>c.draftId===d.id&&c.word)){
+              const w=document.createElement('div'); w.className='hint'; w.style.marginTop='10px';
+              w.textContent='このWordのコメントは，本文のメモにも取り込み済みです．'; body.appendChild(w);
+            }else if(slot==='org'&&n&&d.stage!=='kousei'){
+              const w=document.createElement('div'); w.className='row'; w.style.marginTop='10px';
+              w.innerHTML='<button class="btn sm pri">📝 このコメントを本文のメモに取り込む</button>';
+              body.appendChild(w);
+              w.firstChild.onclick=function(){
+                const inp=dw.querySelector('#cmFile'); if(!inp||!inp.onchange){ toast('取り込みの部品が見つかりませんでした'); return; }
+                const file=new File([b64ToU8(f.data)],f.name||'原本.docx',{type:f.type||''});
+                inp.onchange({target:{files:[file]}});
+                const m=dw.querySelector('#cmMsg'); if(m) m.scrollIntoView({block:'center',behavior:'smooth'});
+              };
+            }
+          }
+          else if((f.type||'').indexOf('pdf')>=0){ await renderPdf(b64ToU8(f.data),body,10); }
           else if((f.type||'').indexOf('image')>=0){ body.innerHTML='<img alt="'+esc(f.name)+'" src="data:'+esc(f.type)+';base64,'+f.data+'">'; }
           else { body.innerHTML='<pre>'+esc(atob(f.data))+'</pre>'; }
         }catch(e){ body.innerHTML='<p class="hint">表示できませんでした（'+esc(emsg(e))+'）</p>'; }
@@ -1151,6 +1222,7 @@
         }catch(e){ toast(emsg(e)); }
       };
     }
+    attBlock('#attOrig','org',origTitle(d.stage),d.stage==='kousei'?'まだついていません（書き込んだテンプレをつけられます）':'まだついていません（コメント付きWordもつけられます）',true);
     attBlock('#attProblem','prb','問題','まだついていません（あとからでも入れられます）',true);
     attBlock('#attShushi','shu','出題趣旨・評価のポイント','まだついていません（あとからでも入れられます）',true);
 
@@ -1795,7 +1867,7 @@
       b.disabled=true;
       try{
         for(const c of myComments()){ try{ await delKind('c',c.id); }catch(err){} }
-        await delFile(id,'prb'); await delFile(id,'shu');
+        await delFile(id,'prb'); await delFile(id,'shu'); await delFile(id,'org');
         for(let i=1;i<=(d.pageCount||0);i++){ try{ await delFile(id,'p'+i); }catch(err){} }
         await delKind('d',id); closeDrawer(); await loadAll(); toast('削除しました');
       }catch(err){ b.disabled=false; b.textContent='削除'; toast(emsg(err)); }
@@ -1842,6 +1914,11 @@
       +'<button class="btn" id="bShu" style="width:100%">出題趣旨のファイルを選ぶ（PDF・画像・テキスト）</button>'
       +'<input type="file" id="shu" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.md" style="display:none">'
       +'<div class="hint" id="shuname">まだ選んでいません</div></div>'
+      +'<div class="fld"><label><span id="orgLbl">原本</span><span class="opt">任意</span></label>'
+      +'<div class="row" style="margin:0"><button class="btn" id="bOrg" style="flex:1">原本のファイルを選ぶ（Word・PDF・画像）</button>'
+      +'<button class="btn sm dgr" id="bOrgRm" style="display:none">外す</button></div>'
+      +'<input type="file" id="org" accept=".docx,.pdf,.png,.jpg,.jpeg,.gif,.webp" style="display:none">'
+      +'<div class="hint" id="orgname">まだ選んでいません</div><div class="hint" id="orghint"></div></div>'
       +'<div class="fld"><label style="display:flex;align-items:center;gap:8px;letter-spacing:0;font-size:13px;color:var(--ink);cursor:pointer"><input type="checkbox" id="u_rev"> 🐼 添削済み<span class="opt">任意・成長記録に反映</span></label></div>'
       +'<div class="fld"><label>自己評価<span class="opt">任意</span></label><div class="rate" id="u_rate"></div></div>'
       +'<div class="fld"><label>メモ<span class="opt">任意</span></label><textarea class="ta short" id="u_memo" placeholder="例：設問3は時間切れ。強盗の機会性で迷った。"></textarea></div>'
@@ -1849,8 +1926,34 @@
       +'<div class="row"><button class="btn pri" id="bSave">保存する</button><button class="btn" id="bCancel">やめる</button></div>';
     const dw=drawer('笹をおく',html);
     const fileEl=dw.querySelector('#file'), bodyEl=dw.querySelector('#u_body');
-    let prbFile=null, shuFile=null, scanPages=null, didOCR=false, docxCms=[];
+    let prbFile=null, shuFile=null, scanPages=null, didOCR=false, docxCms=[], orgFile=null;
+    const paintOrgLbl=function(){
+      const k=dw.querySelector('#u_stage').value==='kousei';
+      dw.querySelector('#orgLbl').textContent=origTitle(k?'kousei':'kian');
+      dw.querySelector('#orghint').textContent=k
+        ?'書き込んだテンプレ（Word・PDF・画像）をそのまま残します．あとで元の見た目で見られます．'
+        :'添削コメント付きのWordなら，原本の横にコメントを並べて見られます．';
+    };
+    const setOrg=function(f,obj,auto){
+      orgFile=obj;
+      dw.querySelector('#orgname').textContent=obj?(obj.name+'（'+Math.round(f.size/1024)+' KB）'+(auto?'　上で読み込んだファイルをそのまま原本として残します':'')):'まだ選んでいません';
+      dw.querySelector('#bOrgRm').style.display=obj?'':'none';
+    };
+    const autoOrg=async function(f){
+      if(orgFile&&!orgFile.auto) return;
+      if(f.size>MAXFILE){ setOrg(f,null); dw.querySelector('#orgname').textContent='読み込んだファイルは大きすぎるため，原本としては残せません（3.4MBまで）'; return; }
+      try{ const o={name:f.name,type:f.type||(isDocx(f)?'application/vnd.openxmlformats-officedocument.wordprocessingml.document':'application/octet-stream'),data:await toB64(f),auto:true}; setOrg(f,o,true); }catch(e){}
+    };
     dw.querySelector('#u_written').value=ymd(new Date());
+    paintOrgLbl(); dw.querySelector('#u_stage').addEventListener('change',paintOrgLbl);
+    dw.querySelector('#bOrg').onclick=()=>dw.querySelector('#org').click();
+    dw.querySelector('#bOrgRm').onclick=()=>setOrg(null,null);
+    dw.querySelector('#org').onchange=async e=>{
+      const f=e.target.files[0]; if(!f) return;
+      if(f.size>MAXFILE){ dw.querySelector('#orgname').textContent='大きすぎます（3.4MBまで）。別のファイルを選んでください。'; return; }
+      try{ setOrg(f,{name:f.name,type:f.type||(isDocx(f)?'application/vnd.openxmlformats-officedocument.wordprocessingml.document':'application/octet-stream'),data:await toB64(f)},false); }
+      catch(err){ dw.querySelector('#orgname').textContent='読めませんでした'; }
+    };
     if(pre){ ['year','exam','subject'].forEach(function(k){ if(pre[k]) dw.querySelector('#u_'+k).value=pre[k]; }); }
     let uRate=0;
     wireRate(dw.querySelector('#u_rate'),()=>uRate,v=>{uRate=v;});
@@ -1906,6 +2009,7 @@
           const r=await readDocx(f);
           bodyEl.value=normText(r.text); cnt();
           docxCms=r.comments||[];
+          await autoOrg(f);
           const fb=wrapLines(normText(r.text)).join(''); let n=0; docxCms.forEach(c=>{ if(findAnchor(fb,c.quote)) n++; });
           upmsg('<div class="ok">'+esc(f.name)+' を読み込みました。'
             +(docxCms.length
@@ -1930,6 +2034,7 @@
           if(txt && txt.replace(/\s/g,'').length>=40){
             scanPages=null; renderScan();
             bodyEl.value=txt; cnt();
+            await autoOrg(f);
             upmsg('<div class="ok">'+esc(f.name)+' から文字を取り出しました。文字数を確かめてください。</div>');
           }else{
             setLoadText('ページを画像にしています…');
@@ -1987,6 +2092,7 @@
         rate:uRate,stage:g('u_stage').value,reviewed:g('u_rev').checked,
         hasProblem:!!prbFile,problemName:prbFile?prbFile.name:'',
         hasShushi:!!shuFile,shushiName:shuFile?shuFile.name:'',
+        hasOrig:!!orgFile,origName:orgFile?orgFile.name:'',
         scan:!!(scanPages&&scanPages.length),pageCount:(scanPages?scanPages.length:0),
         transcript:didOCR?'claude':'',checked:false};
       const btn=e.currentTarget; btn.disabled=true; btn.textContent='保存しています…';
@@ -2008,6 +2114,7 @@
         await putKind('d',rec);
         if(prbFile) try{ await putFile(rec.id,'prb',prbFile); }catch(err){ toast('問題のファイルだけ保存できませんでした'); rec.hasProblem=false; await putKind('d',rec); }
         if(shuFile) try{ await putFile(rec.id,'shu',shuFile); }catch(err){ toast('出題趣旨のファイルだけ保存できませんでした'); rec.hasShushi=false; await putKind('d',rec); }
+        if(orgFile) try{ await putFile(rec.id,'org',{name:orgFile.name,type:orgFile.type,data:orgFile.data}); }catch(err){ toast('原本のファイルだけ保存できませんでした'); rec.hasOrig=false; await putKind('d',rec); }
         if(scanPages&&scanPages.length){
           let ng=0;
           for(let i=0;i<scanPages.length;i++){
@@ -2273,6 +2380,7 @@
       for(const d of drafts){
         if(d.hasProblem){ const f=await getFile(d.id,'prb'); if(f) files[d.id+'_prb']=f; }
         if(d.hasShushi){ const f=await getFile(d.id,'shu'); if(f) files[d.id+'_shu']=f; }
+        if(d.hasOrig){ const f=await getFile(d.id,'org'); if(f) files[d.id+'_org']=f; }
         for(let i=1;i<=(d.pageCount||0);i++){ const f=await getFile(d.id,'p'+i); if(f) files[d.id+'_p'+i]=f; }
       }
     }
@@ -2374,12 +2482,15 @@
       const rec={id:nid,author:AUTHOR,year:r.year||'',exam:r.exam||'',subject:r.subject||'',
         writtenDate:r.writtenDate||'',memo:r.memo||'',filename:r.filename||'',body:normText(r.body||''),
         uploadedAt:r.uploadedAt||new Date().toISOString(),
-        hasProblem:false,problemName:'',hasShushi:false,shushiName:'',
+        hasProblem:false,problemName:'',hasShushi:false,shushiName:'',hasOrig:false,origName:'',
+        rate:r.rate||0,stage:r.stage==='kousei'?'kousei':'kian',reviewed:!!r.reviewed,
         scan:false,pageCount:0,transcript:r.transcript||'',checked:!!r.checked};
       try{
         const pf=F[oid+'_prb'], sf=F[oid+'_shu'];
         if(pf){ try{ await paced(()=>putFile(nid,'prb',pf)); rec.hasProblem=true; rec.problemName=pf.name||''; }catch(e){ f++; } }
         if(sf){ try{ await paced(()=>putFile(nid,'shu',sf)); rec.hasShushi=true; rec.shushiName=sf.name||''; }catch(e){ f++; } }
+        const of=F[oid+'_org'];
+        if(of){ try{ await paced(()=>putFile(nid,'org',of)); rec.hasOrig=true; rec.origName=of.name||''; }catch(e){ f++; } }
         for(let i=1;i<=(r.pageCount||0);i++){
           const g=F[oid+'_p'+i];
           if(g){ try{ await paced(()=>putFile(nid,'p'+i,g)); rec.scan=true; rec.pageCount=i; }catch(e){ f++; } }
